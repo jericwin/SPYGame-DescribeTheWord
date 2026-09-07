@@ -567,17 +567,30 @@ html, body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-  max-height: 260px;
+  max-height: 240px;
   overflow-y: auto;
-  padding-right: 4px;
+  overflow-x: hidden;
+  padding-right: 6px;
+  padding-left: 1px;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 182, 212, 0.4) rgba(255, 255, 255, 0.05);
 }
 
 .categories-grid::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
+}
+
+.categories-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
 }
 
 .categories-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(6, 182, 212, 0.4);
   border-radius: 4px;
 }
 
@@ -590,12 +603,26 @@ html, body {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: pan-y;
+  width: 100%;
 }
 
 .category-card:hover {
   background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-2px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .category-card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.category-card:active {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .category-card.selected {
@@ -1889,6 +1916,13 @@ html, body {
 
 
 /* Mobile Responsiveness Fine-tuning */
+@media (max-width: 520px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+    max-height: 220px;
+  }
+}
+
 @media (max-width: 380px) {
   .logo-title {
     font-size: 1.8rem;
@@ -1908,6 +1942,7 @@ html, body {
 
   .categories-grid {
     grid-template-columns: 1fr;
+    max-height: 200px;
   }
 
   .stats-card-grid {
