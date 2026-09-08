@@ -7053,6 +7053,11 @@ function handlePassToNextPlayer() {
     gameState.currentPlayerIndex++;
     showPlayerTurn();
   } else {
+    const randomStartPlayer = gameState.players[Math.floor(Math.random() * gameState.players.length)];
+    const startingPlayerNameElement = document.getElementById("starting-player-name");
+    if (startingPlayerNameElement) {
+      startingPlayerNameElement.textContent = randomStartPlayer.name;
+    }
     switchScreen("ready");
     soundFx.playWin();
   }
