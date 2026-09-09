@@ -6595,6 +6595,9 @@ const screens = {
 };
 
 const dom = {
+  // Theme
+  btnThemeToggle: document.getElementById("btn-theme-toggle"),
+
   // Steppers
   btnDecPlayers: document.getElementById("btn-dec-players"),
   btnIncPlayers: document.getElementById("btn-inc-players"),
@@ -6729,11 +6732,9 @@ function setLanguage(langKey) {
   if (langKey === "en") {
     dom.langBtnEn.classList.add("active");
     dom.langBtnFil.classList.remove("active");
-    dom.langBadge.textContent = "English";
   } else {
     dom.langBtnFil.classList.add("active");
     dom.langBtnEn.classList.remove("active");
-    dom.langBadge.textContent = "Filipino / Tagalog";
   }
 
   renderCategoryCards();
@@ -6751,13 +6752,6 @@ function setDifficulty(diffKey) {
     }
   });
 
-  const labels = {
-    random: "Random",
-    easy: "Easy (Common)",
-    medium: "Medium (Standard)",
-    hard: "Hard (Uncommon)"
-  };
-  dom.diffBadge.textContent = labels[diffKey] || "Random";
 }
 
 function setSpyAwareness(awarenessKey) {
@@ -6765,11 +6759,9 @@ function setSpyAwareness(awarenessKey) {
   if (awarenessKey === "unknowing") {
     if(dom.spyBtnUnknowing) dom.spyBtnUnknowing.classList.add("active");
     if(dom.spyBtnKnowing) dom.spyBtnKnowing.classList.remove("active");
-    if(dom.spyAwarenessBadge) dom.spyAwarenessBadge.textContent = "Doesn't Know";
   } else {
     if(dom.spyBtnKnowing) dom.spyBtnKnowing.classList.add("active");
     if(dom.spyBtnUnknowing) dom.spyBtnUnknowing.classList.remove("active");
-    if(dom.spyAwarenessBadge) dom.spyAwarenessBadge.textContent = "Knows Identity";
   }
 }
 
@@ -6791,7 +6783,6 @@ function renderCategoryCards() {
         <div class="cat-icon-svg">${catData.svg}</div>
         <div>
           <span class="cat-name">${catData.title}</span>
-          <span class="cat-count-sub">${catData.words.length} words • ${catData.tag}</span>
         </div>
       </div>
       <div class="cat-check">
@@ -6827,20 +6818,13 @@ function toggleCategory(catKey) {
 }
 
 function updateCategoryBadge() {
-  const count = gameState.selectedCategories.length;
-  dom.categoriesCountBadge.textContent = `Selected: ${count}`;
+  // Badge removed to simplify UI
 }
 
 // 9. Input Steppers & Form Validation
 function updateStepperDisplays() {
   dom.displayPlayers.textContent = gameState.totalPlayers;
-  dom.playersBadge.textContent = `${gameState.totalPlayers} Players`;
-
   dom.displaySpies.textContent = gameState.totalSpies;
-  dom.spiesBadge.textContent = `${gameState.totalSpies} ${gameState.totalSpies === 1 ? "Spy" : "Spies"}`;
-
-  const maxSpiesAllowed = Math.max(1, Math.floor(gameState.totalPlayers / 2));
-  dom.spiesLimitNote.textContent = `Max allowed for ${gameState.totalPlayers} agents: ${maxSpiesAllowed}`;
 }
 
 function validateConfiguration() {
@@ -7483,30 +7467,30 @@ function initEventListeners() {
 
   // Timer chips
   dom.timerChips.forEach(chip => {
-    chip.addEventListener("click", () => {
+    chip.addEventListener("click", (e) => {
       soundFx.playClick();
       dom.timerChips.forEach(c => c.classList.remove("active"));
-      chip.classList.add("active");
+      e.target.classList.add("active");
 
-      const val = chip.dataset.minutes;
+      const val = e.target.dataset.minutes;
       if (val === "custom") {
         gameState.selectedTimerMinutes = "custom";
-        dom.customTimerBox.classList.remove("hidden");
-        dom.timerBadge.textContent = "Custom Duration";
+        if (dom.customTimerBox) dom.customTimerBox.classList.remove("hidden");
       } else {
         gameState.selectedTimerMinutes = parseInt(val, 10);
-        dom.customTimerBox.classList.add("hidden");
-        dom.timerBadge.textContent = `${val} Minutes`;
+        if (dom.customTimerBox) dom.customTimerBox.classList.add("hidden");
       }
     });
   });
 
-  dom.customTimerInput.addEventListener("input", (e) => {
-    const v = parseInt(e.target.value, 10);
-    if (!isNaN(v) && v > 0) {
-      dom.timerBadge.textContent = `${v} Minutes`;
-    }
-  });
+  if(dom.customTimerInput) {
+    dom.customTimerInput.addEventListener("input", (e) => {
+      const v = parseInt(e.target.value, 10);
+      if (!isNaN(v) && v > 0) {
+        // Updated in state, badge removed
+      }
+    });
+  }
 
   // Select all / Deselect all categories
   dom.btnSelectAllCats.addEventListener("click", () => {
@@ -7539,6 +7523,26 @@ function initEventListeners() {
       toggleSecretCard();
     }
   });
+
+  // Theme Toggle
+  if (dom.btnThemeToggle) {
+    dom.btnThemeToggle.addEventListener("click", () => {
+      soundFx.playClick();
+      const currentTheme = document.documentElement.getAttribute("data-theme");
+      const newTheme = currentTheme === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", newTheme);
+      
+      const sun = dom.btnThemeToggle.querySelector(".sun-icon");
+      const moon = dom.btnThemeToggle.querySelector(".moon-icon");
+      if (newTheme === "light") {
+        if(sun) sun.classList.add("hidden");
+        if(moon) moon.classList.remove("hidden");
+      } else {
+        if(sun) sun.classList.remove("hidden");
+        if(moon) moon.classList.add("hidden");
+      }
+    });
+  }
 
   // Next player pass
   dom.btnNextPlayerPass.addEventListener("click", handlePassToNextPlayer);

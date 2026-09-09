@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SPY PROTOCOL // Undercover Agent Party Game</title>
-  <meta name="description" content="A high-stakes pass-the-device spy party game for 3-20 players on a single device. Unmask the undercover spy among civilians!">
+  <meta name="description"
+    content="A high-stakes pass-the-device spy party game for 3-20 players on a single device. Unmask the undercover spy among civilians!">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <!-- Ambient background glow elements -->
   <div class="bg-glow bg-glow-1"></div>
@@ -21,9 +26,12 @@
     <header class="app-header">
       <div class="brand-badge">
         <span class="pulse-dot"></span>
-        <span class="brand-sub">CLASSIFIED // EYES ONLY</span>
       </div>
       <h1 class="logo-title">SPY<span>GAME</span></h1>
+      <button type="button" id="btn-theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+        <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg class="moon-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
     </header>
 
     <main class="main-content">
@@ -32,11 +40,16 @@
         <div class="config-card glass-panel">
           <div class="panel-header">
             <span class="icon-chip">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                </path>
+              </svg>
             </span>
             <div>
               <h2 class="section-title">OPERATION SETUP</h2>
-              <p class="section-desc">Pass-and-play party game on this single device</p>
             </div>
           </div>
 
@@ -44,16 +57,21 @@
           <div class="config-group">
             <div class="group-header">
               <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
                 Number of Players
               </span>
-              <span class="badge" id="players-badge">6 Players</span>
             </div>
             <div class="stepper-control">
               <button type="button" id="btn-dec-players" class="stepper-btn" aria-label="Decrease players">−</button>
               <div class="stepper-display">
                 <span id="display-players" class="stepper-number">6</span>
-                <span class="stepper-sub">Min 3 • Max 20</span>
+
               </div>
               <button type="button" id="btn-inc-players" class="stepper-btn" aria-label="Increase players">+</button>
             </div>
@@ -63,16 +81,19 @@
           <div class="config-group">
             <div class="group-header">
               <span class="group-label">
-                <svg class="label-svg svg-spy" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <svg class="label-svg svg-spy" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
                 Undercover Spies
               </span>
-              <span class="badge badge-danger" id="spies-badge">1 Spy</span>
             </div>
             <div class="stepper-control">
               <button type="button" id="btn-dec-spies" class="stepper-btn" aria-label="Decrease spies">−</button>
               <div class="stepper-display">
                 <span id="display-spies" class="stepper-number spy-accent">1</span>
-                <span class="stepper-sub" id="spies-limit-note">Spies &lt; Civilians</span>
               </div>
               <button type="button" id="btn-inc-spies" class="stepper-btn" aria-label="Increase spies">+</button>
             </div>
@@ -82,10 +103,13 @@
           <div class="config-group">
             <div class="group-header">
               <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
                 Discussion Timer
               </span>
-              <span class="badge" id="timer-badge">5 Minutes</span>
             </div>
             <div class="timer-chips-grid">
               <button type="button" class="chip-btn" data-minutes="1">1 Min</button>
@@ -98,7 +122,7 @@
             <div id="custom-timer-container" class="custom-timer-box hidden">
               <label for="custom-timer-input">Custom Duration (Minutes):</label>
               <div class="input-stepper-wrap">
-                <input type="number" id="custom-timer-input" min="1" max="60" value="4">
+                <input type="number" id="custom-timer-input" min="1" max="60" value="15">
                 <span>mins</span>
               </div>
             </div>
@@ -108,19 +132,22 @@
           <div class="config-group">
             <div class="group-header">
               <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                Word Language / Wika
+                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                  </path>
+                </svg>
+                Word Language
               </span>
-              <span class="badge badge-gold" id="language-badge">English</span>
             </div>
             <div class="language-selector-grid">
               <button type="button" class="lang-btn active" id="lang-btn-en" data-lang="en">
                 <span class="lang-title">English</span>
-                <span class="lang-sub">500+ Real Words / Category</span>
               </button>
               <button type="button" class="lang-btn" id="lang-btn-fil" data-lang="fil">
-                <span class="lang-title">Filipino / Tagalog</span>
-                <span class="lang-sub">500+ Katutubong Salita</span>
+                <span class="lang-title">Tagalog</span>
               </button>
             </div>
           </div>
@@ -129,39 +156,60 @@
           <div class="config-group">
             <div class="group-header">
               <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                Word Difficulty / Antas
+                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+                  </polygon>
+                </svg>
+                Word Difficulty
               </span>
-              <span class="badge badge-gold" id="difficulty-badge">Random</span>
             </div>
             <div class="difficulty-selector-grid">
               <button type="button" class="diff-btn active" id="diff-btn-random" data-diff="random">
                 <span class="diff-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 3 21 3 21 8"></polyline>
+                    <line x1="4" y1="20" x2="21" y2="3"></line>
+                    <polyline points="21 16 21 21 16 21"></polyline>
+                    <line x1="15" y1="15" x2="21" y2="21"></line>
+                    <line x1="4" y1="4" x2="9" y2="9"></line>
+                  </svg>
                 </span>
                 <span class="diff-title">Random</span>
-                <span class="diff-sub">All words</span>
               </button>
               <button type="button" class="diff-btn" id="diff-btn-easy" data-diff="easy">
                 <span class="diff-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12l2.5 2.5L16 9"></path></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 12l2.5 2.5L16 9"></path>
+                  </svg>
                 </span>
                 <span class="diff-title">Easy</span>
-                <span class="diff-sub">Most Common</span>
               </button>
               <button type="button" class="diff-btn" id="diff-btn-medium" data-diff="medium">
                 <span class="diff-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
                 </span>
                 <span class="diff-title">Medium</span>
-                <span class="diff-sub">Standard</span>
               </button>
               <button type="button" class="diff-btn" id="diff-btn-hard" data-diff="hard">
                 <span class="diff-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 22 22 22"></polygon><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 22 22 22"></polygon>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
                 </span>
                 <span class="diff-title">Hard</span>
-                <span class="diff-sub">Uncommon</span>
               </button>
             </div>
           </div>
@@ -170,19 +218,20 @@
           <div class="config-group">
             <div class="group-header">
               <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                Spy Awareness / Kaalaman ng Spy
+                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Spy Awareness
               </span>
-              <span class="badge badge-gold" id="spy-awareness-badge">Doesn't Know</span>
             </div>
             <div class="language-selector-grid">
               <button type="button" class="lang-btn active" id="spy-btn-unknowing" data-awareness="unknowing">
                 <span class="lang-title">Doesn't Know</span>
-                <span class="lang-sub">Spy gets a different word</span>
               </button>
               <button type="button" class="lang-btn" id="spy-btn-knowing" data-awareness="knowing">
                 <span class="lang-title">Knows Identity</span>
-                <span class="lang-sub">Spy gets NO word</span>
               </button>
             </div>
           </div>
@@ -191,13 +240,13 @@
           <div class="config-group">
             <div class="group-header">
               <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
-                Categories (500+ Real Words Each)
+                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Categories
               </span>
-              <span class="badge badge-gold" id="categories-count-badge">Selected: 4</span>
             </div>
-            <p class="field-hint" id="categories-field-hint">Select one or multiple categories. All words are genuine vocabulary (no numbers or placeholders).</p>
-            
             <div class="category-actions-bar">
               <button type="button" id="btn-select-all-cats" class="text-action-btn">Select All</button>
               <button type="button" id="btn-clear-cats" class="text-action-btn">Deselect All</button>
@@ -207,7 +256,11 @@
               <!-- Dynamically populated with SVG icons from JS -->
             </div>
             <div id="config-error-msg" class="validation-msg hidden">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
               Please select at least one category to launch the operation.
             </div>
           </div>
@@ -215,7 +268,9 @@
           <!-- START GAME BUTTON -->
           <button type="button" id="btn-play-game" class="primary-btn btn-glow">
             <span class="btn-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
             </span>
             <span class="btn-text">START MISSION</span>
           </button>
@@ -227,11 +282,14 @@
         <div class="glass-panel security-panel text-center">
           <div class="lock-shield-icon">
             <span class="security-radar"></span>
-            <svg class="radar-svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg class="radar-svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
           </div>
-          
+
           <div class="classified-stamp">HANDOFF PROTOCOL</div>
-          
+
           <div class="privacy-player-tag">
             <span class="eyebrow">PASS DEVICE TO</span>
             <h2 id="privacy-player-name" class="target-player-title">PLAYER 1</h2>
@@ -239,10 +297,17 @@
 
           <div class="security-warning-card">
             <p class="warning-title">
-              <svg class="inline-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <svg class="inline-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                </path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
               EYES ONLY // NO PEEKING
             </p>
-            <p class="warning-desc">It is your turn. Verify surrounding players cannot see the screen before confirming identity.</p>
+            <p class="warning-desc">It is your turn. Verify surrounding players cannot see the screen before confirming
+              identity.</p>
           </div>
 
           <div class="handoff-progress">
@@ -254,7 +319,10 @@
 
           <button type="button" id="btn-confirm-identity" class="primary-btn btn-cyan btn-glow">
             <span class="btn-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
             </span>
             <span id="btn-identity-label">I AM PLAYER 1</span>
           </button>
@@ -271,12 +339,17 @@
 
           <!-- 3D FLIP CARD CONTAINER -->
           <div class="flip-card-perspective">
-            <div id="secret-card-element" class="flip-card-inner" role="button" tabindex="0" aria-label="Secret role card. Tap to reveal or hide.">
+            <div id="secret-card-element" class="flip-card-inner" role="button" tabindex="0"
+              aria-label="Secret role card. Tap to reveal or hide.">
               <!-- CARD FRONT (HIDDEN / FACEDOWN) -->
               <div class="card-face card-face-front">
                 <div class="front-mesh"></div>
                 <div class="front-lock-icon">
-                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
                 </div>
                 <h3 class="front-title">CLASSIFIED</h3>
                 <p class="front-subtitle">TAP CARD TO REVEAL</p>
@@ -319,12 +392,17 @@
           <!-- ACTION FOOTER: ONLY SHOWN AFTER CARD IS CLOSED -->
           <div id="card-closed-controls" class="card-closed-banner hidden">
             <div class="status-pill-green">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
               SECRET HIDDEN &amp; SECURED
             </div>
             <button type="button" id="btn-next-player-pass" class="primary-btn btn-glow">
               <span class="btn-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14"></path>
+                  <path d="M12 5l7 7-7 7"></path>
+                </svg>
               </span>
               <span id="btn-pass-next-text">PASS DEVICE TO NEXT PLAYER</span>
             </button>
@@ -336,11 +414,15 @@
       <section id="screen-ready" class="game-screen">
         <div class="glass-panel text-center all-ready-panel">
           <div class="mission-ready-badge">
-            <svg class="inline-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <svg class="inline-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
             BRIEFING COMPLETED
           </div>
           <h2 class="ready-title">EVERYONE HAS THEIR SECRET!</h2>
-          <p class="ready-desc">All players have received their secret assignments and words. Keep your poker face ready.</p>
+          <p class="ready-desc">All players have received their secret assignments and words. Keep your poker face
+            ready.</p>
 
           <div id="starting-player-alert" class="starting-player-alert">
             <div class="starting-player-label">FIRST AGENT TO REPORT</div>
@@ -351,7 +433,8 @@
           <div class="briefing-rules-card">
             <div class="rule-item">
               <span class="rule-num">1</span>
-              <p>Civilians share the identical word. The Spy received a distinct, completely different word from that category.</p>
+              <p>Civilians share the identical word. The Spy received a distinct, completely different word from that
+                category.</p>
             </div>
             <div class="rule-item">
               <span class="rule-num">2</span>
@@ -365,7 +448,9 @@
 
           <button type="button" id="btn-start-discussion" class="primary-btn btn-glow btn-green">
             <span class="btn-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
             </span>
             <span>START DISCUSSION</span>
           </button>
@@ -391,13 +476,18 @@
           <div class="discussion-guidelines">
             <div class="guideline-row">
               <span class="glow-bullet">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
               </span>
               <p>Discuss <strong>face-to-face</strong> and interrogate suspicions around the room.</p>
             </div>
             <div class="guideline-row">
               <span class="glow-bullet">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                </svg>
               </span>
               <p><strong>Never say your exact secret word</strong> out loud!</p>
             </div>
@@ -406,7 +496,10 @@
           <!-- TIME UP BANNER (Appears when timer reaches 0) -->
           <div id="time-up-banner" class="alert-banner-danger hidden">
             <span class="alert-bell">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
             </span>
             <div>
               <strong>TIME'S UP!</strong>
@@ -418,13 +511,19 @@
           <div class="timer-controls-grid">
             <button type="button" id="btn-pause-resume" class="secondary-btn">
               <span id="pause-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="6" y="4" width="4" height="16"></rect>
+                  <rect x="14" y="4" width="4" height="16"></rect>
+                </svg>
               </span>
               <span id="pause-text">PAUSE TIMER</span>
             </button>
             <button type="button" id="btn-go-voting" class="primary-btn btn-gold btn-glow">
               <span class="btn-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 11l3 3L22 4"></path>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
               </span>
               <span>GO TO VOTING</span>
             </button>
@@ -438,7 +537,8 @@
           <div class="voting-header">
             <span class="badge badge-gold">COUNCIL VOTE</span>
             <h2 class="voting-title">WHO IS THE SPY?</h2>
-            <p class="voting-desc">Vote verbally face-to-face. The host then taps the suspect chosen by the group for elimination.</p>
+            <p class="voting-desc">Vote verbally face-to-face. The host then taps the suspect chosen by the group for
+              elimination.</p>
           </div>
 
           <div class="voting-status-summary">
@@ -463,20 +563,23 @@
       <section id="screen-reveal" class="game-screen">
         <div class="glass-panel text-center reveal-result-panel">
           <div class="classified-stamp" id="reveal-stamp">INTERROGATION VERDICT</div>
-          
+
           <div id="reveal-outcome-card" class="outcome-card civilian-eliminated">
             <div id="reveal-hero-icon" class="outcome-hero-icon">
               <!-- SVG icon injected in JS -->
             </div>
             <h2 id="reveal-outcome-title" class="outcome-title">PLAYER 3 WAS A CIVILIAN!</h2>
             <div id="reveal-role-tag" class="role-pill-display">ROLE: CIVILIAN</div>
-            <p id="reveal-outcome-desc" class="outcome-desc">An innocent civilian was eliminated. The Spy is still hiding!</p>
+            <p id="reveal-outcome-desc" class="outcome-desc">An innocent civilian was eliminated. The Spy is still
+              hiding!</p>
             <div id="reveal-remaining-spies-note" class="remaining-spies-badge">1 Spy Still Active</div>
           </div>
 
           <button type="button" id="btn-continue-game" class="primary-btn btn-glow">
             <span class="btn-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
             </span>
             <span id="btn-continue-text">CONTINUE NEXT ROUND</span>
           </button>
@@ -487,11 +590,16 @@
       <section id="screen-gameover" class="game-screen">
         <div class="glass-panel text-center victory-panel">
           <div id="victory-confetti" class="victory-icon">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="7"></circle>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
           </div>
           <div id="victory-badge" class="victory-header-tag">OPERATION OUTCOME</div>
           <h2 id="victory-headline" class="victory-headline">CIVILIANS WIN!</h2>
-          <p id="victory-summary" class="victory-summary-text">All undercover spies were unmasked before parity was reached.</p>
+          <p id="victory-summary" class="victory-summary-text">All undercover spies were unmasked before parity was
+            reached.</p>
 
           <!-- SECRET WORDS REVEAL AT GAME OVER -->
           <div class="words-recap-card">
@@ -545,13 +653,21 @@
           <div class="gameover-actions">
             <button type="button" id="btn-play-again" class="primary-btn btn-glow btn-green">
               <span class="btn-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                </svg>
               </span>
               <span>PLAY AGAIN</span>
             </button>
             <button type="button" id="btn-new-game" class="secondary-btn">
               <span class="btn-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                  </path>
+                </svg>
               </span>
               <span>NEW GAME CONFIG</span>
             </button>
@@ -564,11 +680,16 @@
     <div id="modal-confirm-elim" class="modal-backdrop hidden">
       <div class="modal-card glass-panel text-center">
         <div class="modal-icon">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
         </div>
         <h3 id="modal-elim-title" class="modal-title">Eliminate Player 3?</h3>
-        <p class="modal-desc">This player will be eliminated from the game and their classified identity will be revealed to everyone.</p>
-        
+        <p class="modal-desc">This player will be eliminated from the game and their classified identity will be
+          revealed to everyone.</p>
+
         <div class="modal-actions">
           <button type="button" id="btn-modal-cancel" class="secondary-btn">CANCEL</button>
           <button type="button" id="btn-modal-confirm" class="primary-btn btn-danger btn-glow">REVEAL ROLE</button>
@@ -579,4 +700,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>
