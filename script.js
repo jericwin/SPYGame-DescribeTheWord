@@ -6486,6 +6486,7 @@ const gameState = {
   civilianWord: "",
   spyWord: "",
   wordTier: "RANDOM",
+  spyAwareness: "unknowing",
   
   // Runtime session states
   cardRevealed: false,
@@ -6621,6 +6622,11 @@ const dom = {
   customTimerBox: document.getElementById("custom-timer-container"),
   customTimerInput: document.getElementById("custom-timer-input"),
 
+  // Spy Awareness
+  spyBtnUnknowing: document.getElementById("spy-btn-unknowing"),
+  spyBtnKnowing: document.getElementById("spy-btn-knowing"),
+  spyAwarenessBadge: document.getElementById("spy-awareness-badge"),
+
   // Categories
   categoriesGrid: document.getElementById("categories-grid"),
   categoriesCountBadge: document.getElementById("categories-count-badge"),
@@ -6752,6 +6758,19 @@ function setDifficulty(diffKey) {
     hard: "Hard (Uncommon)"
   };
   dom.diffBadge.textContent = labels[diffKey] || "Random";
+}
+
+function setSpyAwareness(awarenessKey) {
+  gameState.spyAwareness = awarenessKey;
+  if (awarenessKey === "unknowing") {
+    if(dom.spyBtnUnknowing) dom.spyBtnUnknowing.classList.add("active");
+    if(dom.spyBtnKnowing) dom.spyBtnKnowing.classList.remove("active");
+    if(dom.spyAwarenessBadge) dom.spyAwarenessBadge.textContent = "Doesn't Know";
+  } else {
+    if(dom.spyBtnKnowing) dom.spyBtnKnowing.classList.add("active");
+    if(dom.spyBtnUnknowing) dom.spyBtnUnknowing.classList.remove("active");
+    if(dom.spyAwarenessBadge) dom.spyAwarenessBadge.textContent = "Knows Identity";
+  }
 }
 
 // 8. Category Selection Renderer & Handlers
@@ -6979,7 +6998,21 @@ function setupSecretCardForCurrentPlayer() {
   // Populate data
   dom.cardPlayerLabel.textContent = player.name;
   dom.revealPlayerTag.textContent = player.name;
-  dom.revealSecretWord.textContent = player.word;
+
+  let displayRole = player.role;
+  let displayWord = player.word;
+
+  if (player.role === "Spy") {
+    if (gameState.spyAwareness === "knowing") {
+      displayRole = "Spy";
+      displayWord = "NO WORD";
+    } else {
+      displayRole = "Civilian";
+      displayWord = player.word;
+    }
+  }
+
+  dom.revealSecretWord.textContent = displayWord;
 
   // Show Category and Difficulty pill
   if (dom.revealCatHint) {
@@ -6995,7 +7028,7 @@ function setupSecretCardForCurrentPlayer() {
     else dom.revealDiffPill.classList.add("diff-pill-random");
   }
 
-  if (player.role === "Spy") {
+  if (displayRole === "Spy") {
     dom.cardFaceBack.className = "card-face card-face-back role-spy";
     dom.revealRoleIcon.innerHTML = `
       <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -7428,6 +7461,20 @@ function initEventListeners() {
       setDifficulty(diff);
     });
   });
+
+  // Spy Awareness buttons
+  if(dom.spyBtnUnknowing) {
+    dom.spyBtnUnknowing.addEventListener("click", () => {
+      soundFx.playClick();
+      setSpyAwareness("unknowing");
+    });
+  }
+  if(dom.spyBtnKnowing) {
+    dom.spyBtnKnowing.addEventListener("click", () => {
+      soundFx.playClick();
+      setSpyAwareness("knowing");
+    });
+  }
 
   // Timer chips
   dom.timerChips.forEach(chip => {
