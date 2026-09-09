@@ -7001,11 +7001,13 @@ function setupSecretCardForCurrentPlayer() {
 
   let displayRole = player.role;
   let displayWord = player.word;
+  let hideWordBox = false;
 
   if (player.role === "Spy") {
     if (gameState.spyAwareness === "knowing") {
       displayRole = "Spy";
-      displayWord = "NO WORD";
+      displayWord = "";
+      hideWordBox = true;
     } else {
       displayRole = "Civilian";
       displayWord = player.word;
@@ -7013,6 +7015,9 @@ function setupSecretCardForCurrentPlayer() {
   }
 
   dom.revealSecretWord.textContent = displayWord;
+  if (dom.revealSecretWord.parentElement) {
+    dom.revealSecretWord.parentElement.style.display = hideWordBox ? "none" : "";
+  }
 
   // Show Category and Difficulty pill
   if (dom.revealCatHint) {
