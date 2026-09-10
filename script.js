@@ -6469,6 +6469,405 @@ const localizedDatabases = {
   }
 };
 
+// 1.5. Concise One-Sentence Word Description Engine (All Categories • Bilingual EN & FIL)
+function getWordDescription(word, categoryKey, language) {
+  if (!word) return "";
+  const w = word.trim().toUpperCase();
+  const lang = language === "fil" ? "fil" : "en";
+
+  // Curated definitions for signature and popular terms
+  const explicitDict = {
+    en: {
+      "DOG": "A loyal domesticated canine companion and popular household pet.",
+      "PUPPY": "A young, energetic baby canine full of playful curiosity.",
+      "CAT": "A nimble domesticated feline animal known for purring and agility.",
+      "KITTEN": "A tiny and adorable baby cat learning to explore.",
+      "LION": "A powerful apex feline predator renowned as the king of beasts.",
+      "TIGER": "A large solitary wild cat with vibrant orange fur and black stripes.",
+      "BEAR": "A massive heavy mammal equipped with thick warm fur and sharp claws.",
+      "POLAR BEAR": "A large arctic bear expertly adapted to icy freezing climates.",
+      "PANDA": "A gentle black-and-white bear native to bamboo forests in China.",
+      "ELEPHANT": "The largest living land mammal, famous for its trunk and intelligence.",
+      "GIRAFFE": "A tall African savannah herbivore with an exceptionally long neck.",
+      "ZEBRA": "A wild African equine easily recognized by bold black-and-white stripes.",
+      "HORSE": "A majestic domesticated hoofed mammal celebrated for speed and strength.",
+      "DOLPHIN": "A highly intelligent and playful marine mammal known for acrobatics.",
+      "SHARK": "A streamlined ocean predator equipped with multiple rows of sharp teeth.",
+      "BLUE WHALE": "The largest animal known to have ever lived on Earth.",
+      "WHALE": "An enormous ocean-dwelling mammal that surfaces to breathe air.",
+      "EAGLE": "A formidable bird of prey with keen eyesight and broad wingspans.",
+      "OWL": "A nocturnal bird of prey known for silent flight and exceptional night vision.",
+      "PIZZA": "An oven-baked flatbread topped with tomato sauce, melted cheese, and savory toppings.",
+      "BURGER": "A grilled savory patty nestled inside a sliced bun with condiments.",
+      "CHEESEBURGER": "A juicy burger topped with a layer of melted cheese.",
+      "FRENCH FRIES": "Crispy golden batons of deep-fried potatoes seasoned with salt.",
+      "SUSHI": "A classic Japanese delicacy combining seasoned vinegared rice and fresh seafood.",
+      "RAMEN": "A rich Japanese noodle soup served with savory broth, sliced pork, and toppings.",
+      "COFFEE": "A beloved brewed morning beverage prepared from roasted coffee beans.",
+      "ICE CREAM": "A sweet frozen dessert churned into a rich creamy texture.",
+      "APPLE": "A crisp round sweet edible pomaceous fruit widely grown across orchards.",
+      "CHOCOLATE": "A decadent sweet confection crafted from roasted and ground cacao seeds.",
+      "SPAGHETTI": "A long, slender Italian pasta commonly tossed in savory meat or marinara sauce.",
+      "PANCAKE": "A flat round batter cake cooked golden brown on a hot griddle.",
+      "HOSPITAL": "A major healthcare institution dedicated to medical treatment and urgent patient care.",
+      "AIRPORT": "A bustling transportation facility where commercial airplanes land and take flight.",
+      "LIBRARY": "A quiet repository housing extensive curated collections of books and learning resources.",
+      "SCHOOL": "An educational institution where students learn and teachers instruct.",
+      "BEACH": "A scenic sandy shoreline bordering an ocean, lake, or sea.",
+      "PARK": "A public open green space landscaped for community recreation and relaxation.",
+      "DOCTOR": "A licensed medical professional who diagnoses ailments and treats patients.",
+      "NURSE": "A compassionate healthcare professional dedicated to administering direct medical patient care.",
+      "TEACHER": "An educator who imparts knowledge, skills, and values to students.",
+      "PILOT": "A skilled aviation professional who operates the flight controls of aircraft.",
+      "CHEF": "A master culinary artist who plans menus and directs meal preparation in professional kitchens.",
+      "POLICE OFFICER": "A civil officer sworn to preserve public order and enforce the law.",
+      "FIREFIGHTER": "A brave emergency responder trained to extinguish hazardous fires and rescue victims.",
+      "SMARTPHONE": "A portable touchscreen mobile phone featuring internet computing abilities.",
+      "LAPTOP": "A compact portable personal computer designed for mobile productivity.",
+      "TABLET": "A flat handheld touchscreen computing device versatile for reading and media.",
+      "TELEVISION": "An electronic entertainment monitor that broadcasts video programs and movies.",
+      "HAMMER": "A weighted hand tool used to deliver high-impact strikes to drive nails.",
+      "BICYCLE": "A two-wheeled human-powered transport vehicle steered with handlebars.",
+      "SWIMMING": "The physical sport or recreation of moving through water using bodily strokes.",
+      "RUNNING": "The athletic action of moving rapidly forward on foot at a swift pace.",
+      "COOKING": "The domestic or culinary art of preparing appetizing food through heat.",
+      "READING": "The focused activity of comprehending written texts, stories, or knowledge."
+    },
+    fil: {
+      "ASO": "Isang tapat at maamong alagang hayop na bantay ng tahanan at kaibigan ng tao.",
+      "TUTA": "Isang munting sanggol na aso na masigla at malambing.",
+      "ASKAL": "Isang katutubong asong Pilipino na matalino at mapagkakatiwalaan.",
+      "ASPIN": "Ang magiliw na tawag sa asong Pinoy na tapat at matatag.",
+      "PUSA": "Isang maliksing alagang pusa na mahilig humuni at maglakbay sa paligid.",
+      "KITING": "Isang maliit at kaibig-ibig na sanggol na pusa.",
+      "KALABAW": "Ang pambansang hayop ng Pilipinas na katuwang ng magsasaka sa pagsasaka.",
+      "BAKA": "Isang maamong hayop sa bukirin na pinagkukunan ng gatas at masustansyang karne.",
+      "KAMBING": "Isang maliksing hayop sa pastulan na mahilig manginain ng damo.",
+      "BABOY": "Isang karaniwang alagang hayop sa bukid na pinalalaki sa kural.",
+      "MANOK": "Isang alagang ibon sa bakuran na nagbibigay ng itlog at maagang tumitilaok.",
+      "AGILA": "Ang dakilang pambansang ibon ng Pilipinas na marangal at matalas ang paningin.",
+      "BANGUS": "Ang pambansang isda ng Pilipinas na paboritong iihawin o isaing.",
+      "TILAPIA": "Isang karaniwang isdang tabang na paboritong iprito sa hapag-kainan.",
+      "SINIGANG": "Isang klasikong maasim na sabaw na may sariwang karne at masustansyang gulay.",
+      "ADOBO": "Ang paboritong pambansang ulam na pinalambot sa toyo, suka, at bawang.",
+      "LECHON": "Isang buong inihaw na baboy na may malutong na balat tuwing may kapistahan.",
+      "KARE-KARE": "Isang marangyang lutuing may malapot na sarsang mani at bagoong alamang.",
+      "BULALO": "Isang malinamnam na sabaw ng baka na may sumasabog na sarap ng utak sa buto.",
+      "HALO-HALO": "Isang tanyag na pampalamig na may pinaghalong tamis, kinaskas na yelo, at gatas.",
+      "BIBINGKA": "Isang tradisyonal na kakaning gawa sa galapong at inihurno sa dahon ng saging.",
+      "PUTO": "Isang malambot na steamed rice cake na karaniwang kapares ng dinuguan.",
+      "BAHAY": "Ang tahanan kung saan namumuhay nang mapayapa ang buong pamilya.",
+      "SIMBAHAN": "Isang banal na pook-dalanginan at pagtitipon ng mga mananampalataya.",
+      "PALENGKE": "Ang masiglang pamilihan ng sariwang karne, isda, gulay, at prutas.",
+      "PAARALAN": "Ang institusyon ng karunungan kung saan nag-aaral at natututo ang kabataan.",
+      "OSPITAL": "Isang pagamutan para sa panggagamot at pangangalaga sa maysakit.",
+      "DOKTOR": "Isang lisensyadong propesyonal na gumagamot at nag-aalaga sa kalusugan ng tao.",
+      "GURO": "Isang huwarang tagapagturo na humuhubog sa kaisipan ng mga mag-aaral.",
+      "PULIS": "Isang alagad ng batas na nagbabantay sa kapayapaan at kaayusan ng bayan.",
+      "BUMBERO": "Isang magiting na tagasugpo ng sunog at tagapagligtas sa oras ng sakuna.",
+      "TABO": "Isang tradisyonal na gamit pansalok ng tubig na karaniwang makikita sa banyo.",
+      "TIMBA": "Isang sisidlan ng tubig na gamit sa paliligo, paglalaba, o paglilinis.",
+      "BATYA": "Isang malaking lalagyan na karaniwang ginagamit sa paglalaba ng damit.",
+      "WALIS TINGTING": "Isang gamit panlinis na gawa sa tadyang ng niyog pampalis ng tuyong dahon.",
+      "KARAOKE": "Isang masayang kantahan at libangan na paborito sa bawat pagtitipong Pinoy.",
+      "VIDEOKE": "Isang sikat na makina ng kantahan na paborito sa mga kaarawan at salu-salo."
+    }
+  };
+
+  if (explicitDict[lang] && explicitDict[lang][w]) {
+    return explicitDict[lang][w];
+  }
+
+  // Dynamic contextual fallback generation based on category & patterns
+  if (lang === "en") {
+    switch (categoryKey) {
+      case "Animals":
+        if (/BEAR|CAT|DOG|LION|TIGER|WOLF|FOX|DEER|HORSE|COW|PIG|SHEEP|GOAT|RABBIT|MONKEY|BAT|RAT|MOUSE|ELEPHANT|GIRAFFE|ZEBRA|PANDA|WHALE|SEAL|OTTER|KANGAROO|LEMUR|SLOTH/.test(w)) {
+          return "A mammal species found in the wild or domesticated environments.";
+        }
+        if (/BIRD|EAGLE|HAWK|OWL|PARROT|FALCON|DUCK|GOOSE|SWAN|PENGUIN|SEAGULL|SPARROW|FLAMINGO|PEACOCK|PIGEON|CROW|ROBIN|CANARY|OSTRICH|HUMMINGBIRD/.test(w)) {
+          return "A feathered winged bird species known for flight or distinctive plumage.";
+        }
+        if (/FISH|SHARK|TUNA|SALMON|TROUT|EEL|RAY|COD|GOLDFISH|BASS|CATFISH|SWORDFISH|BARRACUDA/.test(w)) {
+          return "An aquatic fish creature that lives and swims in marine or fresh waters.";
+        }
+        if (/SNAKE|LIZARD|CROCODILE|ALLIGATOR|TURTLE|TORTOISE|VIPER|COBRA|PYTHON|GECKO|IGUANA|CHAMELEON/.test(w)) {
+          return "A cold-blooded reptile covered with scales or a protective shell.";
+        }
+        if (/FROG|TOAD|SALAMANDER|NEWT/.test(w)) {
+          return "An amphibious creature adapted to both aquatic and terrestrial habitats.";
+        }
+        if (/SPIDER|ANT|BEE|WASP|BEETLE|BUTTERFLY|MOTH|FLY|MOSQUITO|CRICKET|SCORPION|CATERPILLAR|DRAGONFLY/.test(w)) {
+          return "A small insect or arthropod creature playing an important role in nature.";
+        }
+        if (/CRAB|LOBSTER|SHRIMP|OCTOPUS|SQUID|JELLYFISH|STARFISH|CLAM|OYSTER|SNAIL|CORAL/.test(w)) {
+          return "A marine creature inhabiting oceanic coastal or deepwater environments.";
+        }
+        return "A living animal or wildlife creature from the animal kingdom.";
+
+      case "Food":
+        if (/JUICE|TEA|COFFEE|WATER|SODA|MILK|SHAKE|WINE|BEER|SMOOTHIE|LEMONADE|LATTE|DRINK|PUNCH/.test(w)) {
+          return "A refreshing liquid beverage enjoyed hot or ice-cold.";
+        }
+        if (/CAKE|ICE CREAM|COOKIE|PIE|CANDY|CHOCOLATE|DONUT|BROWNIE|PASTRY|SORBET|DESSERT|CUPCAKE|PUDDING/.test(w)) {
+          return "A delectable sweet confection or dessert treat.";
+        }
+        if (/APPLE|BANANA|ORANGE|MANGO|BERRY|GRAPE|LEMON|MELON|PEACH|PEAR|FRUIT|CHERRY|PINEAPPLE|COCONUT/.test(w)) {
+          return "A fresh and nutritious fruit harvested from plants or trees.";
+        }
+        if (/SOUP|STEW|BROTH|CHOWDER|RAMEN|CURRY|GUMBO/.test(w)) {
+          return "A warm, comforting savory dish served with rich broth and ingredients.";
+        }
+        if (/BREAD|TOAST|BAGEL|CROISSANT|ROLL|BISCUIT|PANCAKE|WAFFLE|MUFFIN/.test(w)) {
+          return "A freshly baked grain-based food enjoyed for breakfast or snacking.";
+        }
+        if (/PIZZA|BURGER|SANDWICH|TACO|BURRITO|FRIES|HOTDOG|NOODLE|PASTA|RICE|LASAGNA|WRAP/.test(w)) {
+          return "A popular hearty meal favorite packed with flavor.";
+        }
+        if (/BEEF|PORK|CHICKEN|STEAK|BACON|SAUSAGE|HAM|FISH|SEAFOOD|MEAT|TURKEY|RIBS|LAMB/.test(w)) {
+          return "A protein-rich savory meat or seafood dish prepared for dining.";
+        }
+        return "A flavorful culinary dish or appetizing food item.";
+
+      case "Places":
+        if (/ROOM|BEDROOM|KITCHEN|BATHROOM|LIVING|GARAGE|CLOSET|ATTIC|BASEMENT|BALCONY|PATIO/.test(w)) {
+          return "A specific room or designated area within a residential home.";
+        }
+        if (/PARK|BEACH|FOREST|MOUNTAIN|LAKE|RIVER|OCEAN|SEA|ISLAND|DESERT|VALLEY|CAVE|TRAIL|WATERFALL/.test(w)) {
+          return "A breathtaking outdoor natural landmark or scenic destination.";
+        }
+        if (/STORE|SHOP|MALL|MARKET|SUPERMARKET|BAKERY|PHARMACY|BOUTIQUE|GROCERY/.test(w)) {
+          return "A commercial shopping venue where customers purchase goods.";
+        }
+        if (/RESTAURANT|CAFE|BAR|DINER|BISTRO|PUB|BUFFET|CANTEEN/.test(w)) {
+          return "A hospitable dining venue that prepares and serves food and drinks.";
+        }
+        if (/SCHOOL|COLLEGE|UNIVERSITY|LIBRARY|CAMPUS|ACADEMY|CLASSROOM/.test(w)) {
+          return "An educational learning environment dedicated to study and instruction.";
+        }
+        if (/HOSPITAL|CLINIC|WARD|PHARMACY|EMERGENCY/.test(w)) {
+          return "A professional healthcare establishment focused on medical wellness.";
+        }
+        if (/AIRPORT|STATION|TERMINAL|PORT|HARBOR|SUBWAY|STOP|PIER/.test(w)) {
+          return "A dynamic transportation terminal connecting passengers to their journeys.";
+        }
+        return "A distinctive geographical location, building, or visiting place.";
+
+      case "Jobs":
+        if (/DOCTOR|NURSE|SURGEON|PHYSICIAN|DENTIST|THERAPIST|PARAMEDIC|PHARMACIST|VETERINARIAN/.test(w)) {
+          return "A compassionate healthcare professional devoted to treating patients.";
+        }
+        if (/TEACHER|PROFESSOR|INSTRUCTOR|TUTOR|EDUCATOR|LECTURER|PRINCIPAL/.test(w)) {
+          return "A dedicated educator who inspires and guides learners.";
+        }
+        if (/ENGINEER|DEVELOPER|PROGRAMMER|SCIENTIST|ARCHITECT|ANALYST|RESEARCHER/.test(w)) {
+          return "A technical or scientific expert solving problems through analysis and design.";
+        }
+        if (/ARTIST|DESIGNER|PAINTER|MUSICIAN|SINGER|ACTOR|WRITER|AUTHOR|DANCER/.test(w)) {
+          return "A creative talent expressing ideas through performance and the arts.";
+        }
+        if (/CHEF|COOK|BAKER|WAITER|WAITRESS|BARTENDER|BARISTA/.test(w)) {
+          return "A skilled food or hospitality specialist catering to hungry patrons.";
+        }
+        if (/POLICE|OFFICER|FIREFIGHTER|GUARD|DETECTIVE|SOLDIER|INVESTIGATOR|SECURITY/.test(w)) {
+          return "A protective public service officer dedicated to maintaining safety.";
+        }
+        if (/PILOT|DRIVER|CAPTAIN|CONDUCTOR|CHAUFFEUR|SAILOR/.test(w)) {
+          return "A certified transport operator steering passenger or freight transit.";
+        }
+        return "A recognized career profession or specialized occupation.";
+
+      case "Objects":
+        if (/PHONE|LAPTOP|COMPUTER|TABLET|TV|MONITOR|CAMERA|WATCH|CABLE|KEYBOARD|HEADPHONE|SPEAKER/.test(w)) {
+          return "An electronic gadget or digital appliance used in everyday modern life.";
+        }
+        if (/SHIRT|PANTS|JACKET|COAT|HAT|SHOE|SOCK|DRESS|SKIRT|GLOVE|SUIT|BOOT|SANDAL|SCARF/.test(w)) {
+          return "An article of apparel, clothing, or personal attire worn on the body.";
+        }
+        if (/TABLE|CHAIR|DESK|SOFA|COUCH|BED|SHELF|CABINET|LAMP|MIRROR|STOOL/.test(w)) {
+          return "A piece of indoor home furniture or decorative household fixture.";
+        }
+        if (/KNIFE|FORK|SPOON|PLATE|BOWL|CUP|MUG|GLASS|PAN|POT|SPATULA|BOTTLE/.test(w)) {
+          return "A practical kitchen utensil, piece of tableware, or cookware.";
+        }
+        if (/HAMMER|SCREWDRIVER|WRENCH|DRILL|SAW|PLIERS|TOOL|FLASHLIGHT|TAPE/.test(w)) {
+          return "A versatile manual or power tool useful for crafting and repairs.";
+        }
+        if (/BOOK|PEN|PENCIL|NOTEBOOK|PAPER|FOLDER|SCISSORS|RULER|STAPLER/.test(w)) {
+          return "An item of stationery or writing material for school and office tasks.";
+        }
+        if (/CAR|BICYCLE|BIKE|MOTORCYCLE|BUS|TRAIN|BOAT|PLANE|TRUCK|VAN|SCOOTER/.test(w)) {
+          return "A vehicular mode of transport designed to travel across distances.";
+        }
+        return "A tangible everyday handheld item or functional manufactured object.";
+
+      case "Activities":
+        if (/RUN|JOG|WALK|SWIM|JUMP|HIKE|CLIMB|CYCLE|RIDE|DANCE|WORKOUT|EXERCISE/.test(w)) {
+          return "An energetic physical activity or bodily exercise promoting health.";
+        }
+        if (/READ|WRITE|STUDY|LEARN|TEACH|LISTEN|SOLVE|CALCULATE|MEMORIZE/.test(w)) {
+          return "A thoughtful mental activity engaging intellect and understanding.";
+        }
+        if (/PLAY|SING|DRAW|PAINT|WATCH|GAME|PHOTOGRAPH|CAMP|TRAVEL/.test(w)) {
+          return "An entertaining hobby, creative leisure pursuit, or pastime.";
+        }
+        if (/COOK|BAKE|CLEAN|WASH|SWEEP|MOP|FOLD|IRON|SHOP|PACK|ORGANIZE/.test(w)) {
+          return "A productive household chore, daily task, or domestic upkeep.";
+        }
+        if (/SLEEP|NAP|REST|RELAX|MEDITATE|BREATHE|DREAM/.test(w)) {
+          return "A calm and restorative rest period for rejuvenating mind and body.";
+        }
+        return "An engaging daily action, pastime, or human activity.";
+    }
+    return "A designated word concept representing " + w.toLowerCase() + ".";
+  } else {
+    // Filipino
+    switch (categoryKey) {
+      case "Animals":
+        if (/ASO|PUSA|BAKA|KALABAW|KAMBING|KABAYO|BABOY|UNGGOY|DAGA|KUNEHO|TUPA|LOBO|LEON|TIGRE|ELEPANTE|OSO/.test(w)) {
+          return "Isang uri ng mammal na may buhay at naninirahan sa lupa.";
+        }
+        if (/IBON|MANOK|PATO|ITIK|BIBE|KALAPATI|AGILA|LORO|UWAK|KUWAGO|MAYA|LAWIN|PIPIT/.test(w)) {
+          return "Isang may pakpak na nilalang na lumilipad o alagang ibon.";
+        }
+        if (/ISDA|BANGUS|TILAPIA|GALUNGGONG|TULINGAN|DALAGANG BUKID|PATING|BALYENA|DILIS|HITO|DALAG/.test(w)) {
+          return "Isang isda o nilalang sa dagat, ilog, at lawa.";
+        }
+        if (/AHAS|BAYAWAK|BUWAYA|PAGONG|TUKO|BUTIKI/.test(w)) {
+          return "Isang reptilya na may protektibong balat o talukap.";
+        }
+        if (/INSEKTO|LAMOK|LANGAW|LANGGAM|BUBUYOG|PARUPARO|GAGAMBA|TUTUBI|TIPAKLONG|IPIS|UOD/.test(w)) {
+          return "Isang maliit na insekto o kulisap sa kapaligiran.";
+        }
+        if (/ALIMANGO|ALIMASAG|HIPON|SUGPO|PUGITA|PUSIT|TAHONG|TALABA|KUHOL|DIKYA/.test(w)) {
+          return "Isang masarap na lamang-dagat o nilalang sa tubig.";
+        }
+        return "Isang hayop o nilalang na may buhay sa kalikasan.";
+
+      case "Food":
+        if (/JUICE|TUBIG|KAPE|TSAA|GATAS|SHAKE|SODA|INUMIN|SAMALAMIG|GULAMAN|BUKO/.test(w)) {
+          return "Isang masarap at nakakapreskong inumin na pamatid-uhaw.";
+        }
+        if (/KAKANIN|BIBINGKA|PUTO|KUTSINTA|SUMAN|TURON|HALO-HALO|LECHE FLAN|SORBETES|MATAMIS|KENDI|TSOKOLATE|CAKE/.test(w)) {
+          return "Isang matamis na panghimagas o meryendang pampagana.";
+        }
+        if (/MANGGA|SAGING|PAKWAN|PINYA|PAPAYA|DALANDAN|BAYABAS|SANTOL|PRUTAS/.test(w)) {
+          return "Isang masustansyang sariwang prutas mula sa mga taniman.";
+        }
+        if (/SINIGANG|TINOLA|BULALO|NILAGA|SOPAS|MAMI|BATCHOY|LOMI|ARROZ CALDO|LUGAW/.test(w)) {
+          return "Isang mainit at masarap na sabaw na paborito tuwing kumakain.";
+        }
+        if (/ADOBO|LECHON|KARE-KARE|KALDERETA|MENUDO|AFRITADA|SISIG|DINUGUAN|LIEMPO|TAPA|TOCINO|LONGGANISA/.test(w)) {
+          return "Isang tanyag at katakam-takam na lutong ulam na Pinoy.";
+        }
+        if (/GULAY|PINAKBET|LAING|CHOPSUEY|TALONG|SITAW|KANGKONG|KALABASA/.test(w)) {
+          return "Isang masustansyang gulay na hitik sa bitamina para sa katawan.";
+        }
+        if (/KANIN|SINANGAG|BIHON|CANTON|PANCIT|SPAGHETTI|PALABOK/.test(w)) {
+          return "Isang pampabusog na kanin o pansit sa bawat salu-salo.";
+        }
+        return "Isang masarap na pagkain o lutuing kinagigiliwan sa hapag-kainan.";
+
+      case "Places":
+        if (/BAHAY|KWARTO|SALA|KUSINA|BANYO|GARAHE|BAKURAN|BALKONAHE|TIRAHAN/.test(w)) {
+          return "Isang bahagi o espasyo sa loob ng isang tahanan.";
+        }
+        if (/PALENGKE|MALL|TINDAHAN|TIANGGE|TALIPAPA|SUPERMARKET|SARI-SARI|BOTIKA|PANADERYA/.test(w)) {
+          return "Isang pamilihan kung saan bumibili ng mga pangangailangan ang mga tao.";
+        }
+        if (/RESTORAN|KARINDERYA|KAINAN|KANTINA|KAPEHAN|IHAWAN/.test(w)) {
+          return "Isang kainan na naghahain ng masasarap na putahe at inumin.";
+        }
+        if (/ESKWELA|PAARALAN|SILID-ARALAN|AKLATAN|KOLEHIYO|UNIBERSIDAD/.test(w)) {
+          return "Isang pook-aralan na hubugan ng karunungan at edukasyon.";
+        }
+        if (/OSPITAL|KLINIKA|HEALTH CENTER/.test(w)) {
+          return "Isang pagamutan para sa pagpapagaling ng kalusugan.";
+        }
+        if (/DAGAT|DALAMPASIGAN|ILOG|BUNDOK|TALON|GUBAT|BUKID|KWEBA|ISLA|LAWA/.test(w)) {
+          return "Isang magandang tanawin o likas na pook sa kalikasan.";
+        }
+        if (/SIMBAHAN|KAPILYA|KATEDRAL|MOSKE/.test(w)) {
+          return "Isang banal na dambana para sa panalangin at pagsamba.";
+        }
+        if (/KALSADA|KANTO|TULAY|PLAZA|PARKE|ISTASYON|PALIPARAN|PANTALAN/.test(w)) {
+          return "Isang pampublikong pasilidad o daanan na dinarayo ng madla.";
+        }
+        return "Isang tanyag na lugar, pook, o gusali sa pamayanan.";
+
+      case "Jobs":
+        if (/DOKTOR|NARS|DENTISTA|MANGGAGAMOT|KOMADRONA/.test(w)) {
+          return "Isang propesyonal sa medisina na nag-aalaga sa kalusugan.";
+        }
+        if (/GURO|TITSER|PROPESOR|TAGAPAGTURO/.test(w)) {
+          return "Isang tagapagturo na nagbabahagi ng dunong sa kabataan.";
+        }
+        if (/PULIS|SUNDALO|BUMBERO|TANOD|GUWARDIYA|IMBESTIGADOR/.test(w)) {
+          return "Isang tagapagtanggol ng kapayapaan at kaligtasan ng pamayanan.";
+        }
+        if (/KUSINERO|KUSINERA|PANADERO|WAITER|WAITRESS|SERBIDOR/.test(w)) {
+          return "Isang dalubhasa sa pagluluto at paghahain ng pagkain.";
+        }
+        if (/KARPINTERO|TUBERO|ELEKTRISYAN|MEKANIKO|MASON|PINTOR/.test(w)) {
+          return "Isang bihasang manggagawa sa konstruksyon at pagkukumpuni.";
+        }
+        if (/DRAYBER|TSUPER|PILOTO|KAPITAN|MARINO|KONDUKTOR/.test(w)) {
+          return "Isang lisensyadong tagapagmaneho o tagapagdala ng sasakyan.";
+        }
+        if (/MAGSASAKA|MANGINGISDA|MAGTATANIM/.test(w)) {
+          return "Isang masipag na nagtataguyod ng pagkain mula sa lupa at dagat.";
+        }
+        return "Isang marangal na hanapbuhay o propesyon sa lipunan.";
+
+      case "Objects":
+        if (/CELLPHONE|TELEPONO|LAPTOP|COMPUTER|TELEBISYON|RADYO|ELECTRIC FAN|KAMERA/.test(w)) {
+          return "Isang makabagong gadyet o de-koryenteng gamit sa pamumuhay.";
+        }
+        if (/DAMIT|PANTALON|BARO|SAYA|TSINELAS|SAPATOS|MEDYAS|SOMBRERO|SANDO|JACKET|TUWALYA/.test(w)) {
+          return "Isang kasuotan o pansariling gamit na isinusuot sa katawan.";
+        }
+        if (/MESA|UPUAN|BANGKO|KAMA|APARADOR|KABINET|SALAMIN/.test(w)) {
+          return "Isang kasangkapan o muwebles sa loob ng tahanan.";
+        }
+        if (/KUTSARA|TINIDOR|PLATO|MANGKOK|BASO|TASA|KAWALI|KALDERO|KUTSILYO|SANDOK/.test(w)) {
+          return "Isang gamit sa kusina para sa pagluluto o pagkain.";
+        }
+        if (/TABO|TIMBA|BATYA|PALANGGANA|WALIS|DUSTPAN|BASAHAN|SIPILYO|SABON/.test(w)) {
+          return "Isang kagamitan sa paglilinis ng bahay o paliligo.";
+        }
+        if (/MARTILYO|LAGARI|TURNILYO|PAKO|PLIERS|LUBID|ITAK/.test(w)) {
+          return "Isang kagamitan sa paggawa, pagpupukpok, o pagkukumpuni.";
+        }
+        if (/AKLAT|LIBRO|PAPEL|BALLPEN|LAPIS|KWADERNO|GUNTING/.test(w)) {
+          return "Isang gamit sa pagsusulat, pagbabasa, o opisina.";
+        }
+        if (/KOTSE|DYIP|JEEPNEY|TRICYCLE|MOTOR|BISEKLETA|BANGKA/.test(w)) {
+          return "Isang sasakyan o gamit pantransportasyon sa paglalakbay.";
+        }
+        return "Isang pisikal na bagay o gamit sa pang-araw-araw na buhay.";
+
+      case "Activities":
+        if (/TAKBO|LAKAD|LANGOY|SAYAW|TALON|EHERSISYO|LARO|BASKETBOL/.test(w)) {
+          return "Isang masiglang kilos o pisikal na ehersisyo pampalakas ng katawan.";
+        }
+        if (/KANTA|KARAOKE|VIDEOKE|KWENTUHAN|INUMAN|NOOD|PASYAL|SALU-SALO/.test(w)) {
+          return "Isang masayang libangan o pagsasama-sama ng magkakaibigan at pamilya.";
+        }
+        if (/ARAL|BASA|SULAT|ISIP|GUHIT/.test(w)) {
+          return "Isang gawaing pangkaisipan para sa pagkatuto at dunong.";
+        }
+        if (/LUTO|HUGAS|LINIS|WALIS|LABA|SAMPAY|LIGPIT|PLANTSA/.test(w)) {
+          return "Isang gawaing-bahay o pang-araw-araw na asikasuhin sa pamilya.";
+        }
+        if (/TULOG|PAHINGA|IDLIP|HIGA/.test(w)) {
+          return "Isang mapayapang pamamahinga upang manumbalik ang lakas.";
+        }
+        return "Isang pangkaraniwang pagkilos, gawain, o libangan ng tao.";
+    }
+    return "Isang salitang naglalarawan sa " + w.toLowerCase() + ".";
+  }
+}
+
 // 2. Central Game State Object
 const gameState = {
   language: "en", // "en" or "fil"
@@ -6655,6 +7054,7 @@ const dom = {
   revealDiffPill: document.getElementById("reveal-diff-pill"),
   revealCatHint: document.getElementById("reveal-cat-hint"),
   revealSecretWord: document.getElementById("reveal-secret-word"),
+  revealWordDesc: document.getElementById("reveal-word-desc"),
   cardClosedControls: document.getElementById("card-closed-controls"),
   btnNextPlayerPass: document.getElementById("btn-next-player-pass"),
   btnPassNextText: document.getElementById("btn-pass-next-text"),
@@ -6704,6 +7104,8 @@ const dom = {
   recapDifficulty: document.getElementById("recap-difficulty"),
   recapCivWord: document.getElementById("recap-civ-word"),
   recapSpyWord: document.getElementById("recap-spy-word"),
+  recapCivDesc: document.getElementById("recap-civ-desc"),
+  recapSpyDesc: document.getElementById("recap-spy-desc"),
   statTotalPlayers: document.getElementById("stat-total-players"),
   statTotalSpies: document.getElementById("stat-total-spies"),
   statRoundsPlayed: document.getElementById("stat-rounds-played"),
@@ -6999,6 +7401,16 @@ function setupSecretCardForCurrentPlayer() {
   }
 
   dom.revealSecretWord.textContent = displayWord;
+  if (dom.revealWordDesc) {
+    if (hideWordBox || !displayWord) {
+      dom.revealWordDesc.textContent = "";
+      dom.revealWordDesc.style.display = "none";
+    } else {
+      const desc = getWordDescription(displayWord, gameState.selectedCategory, gameState.language);
+      dom.revealWordDesc.textContent = desc;
+      dom.revealWordDesc.style.display = "block";
+    }
+  }
   if (dom.revealSecretWord.parentElement) {
     dom.revealSecretWord.parentElement.style.display = hideWordBox ? "none" : "";
   }
@@ -7346,6 +7758,12 @@ function showGameOver(winner) {
   }
   dom.recapCivWord.textContent = gameState.civilianWord;
   dom.recapSpyWord.textContent = gameState.spyWord;
+  if (dom.recapCivDesc) {
+    dom.recapCivDesc.textContent = getWordDescription(gameState.civilianWord, gameState.selectedCategory, gameState.language);
+  }
+  if (dom.recapSpyDesc) {
+    dom.recapSpyDesc.textContent = getWordDescription(gameState.spyWord, gameState.selectedCategory, gameState.language);
+  }
 
   // Stats Grid
   dom.statTotalPlayers.textContent = gameState.totalPlayers;
