@@ -6477,6 +6477,7 @@ function toTitleCase(s) {
 function getWordDescription(word, categoryKey, language) {
   if (!word) return "";
   const w = word.trim().toUpperCase();
+  const wUpper = w;
   const wTitle = toTitleCase(word.trim());
   const lang = language === "fil" ? "fil" : "en";
 
@@ -7554,8 +7555,8 @@ function revealPlayerRole(player) {
     `;
     dom.revealOutcomeTitle.textContent = `${player.name.toUpperCase()} WAS A SPY!`;
     dom.revealRoleTag.textContent = "ROLE: SPY";
-    dom.revealRoleTag.style.background = "rgba(239, 68, 68, 0.3)";
-    dom.revealRoleTag.style.color = "#fca5a5";
+    dom.revealRoleTag.className = "role-pill-display role-pill-spy";
+    dom.revealRoleTag.removeAttribute("style");
     dom.revealOutcomeDesc.textContent = "An undercover spy has been identified and neutralized!";
   } else {
     soundFx.playClick();
@@ -7568,8 +7569,8 @@ function revealPlayerRole(player) {
     `;
     dom.revealOutcomeTitle.textContent = `${player.name.toUpperCase()} WAS A CIVILIAN!`;
     dom.revealRoleTag.textContent = "ROLE: CIVILIAN";
-    dom.revealRoleTag.style.background = "rgba(59, 130, 246, 0.3)";
-    dom.revealRoleTag.style.color = "#93c5fd";
+    dom.revealRoleTag.className = "role-pill-display role-pill-civ";
+    dom.revealRoleTag.removeAttribute("style");
     dom.revealOutcomeDesc.textContent = "An innocent civilian was eliminated. The Spy is still hiding!";
   }
 
@@ -7628,7 +7629,7 @@ function showGameOver(winner) {
       </svg>
     `;
     dom.victoryBadge.textContent = "OPERATION SUCCESSFUL";
-    dom.victoryBadge.style.color = "#6ee7b7";
+    dom.victoryBadge.className = "victory-header-tag outcome-civ";
     dom.victoryHeadline.textContent = "CIVILIANS WIN!";
     dom.victoryHeadline.className = "victory-headline civ-win";
     dom.victorySummary.textContent = "All undercover spies were unmasked before parity was reached!";
@@ -7641,7 +7642,7 @@ function showGameOver(winner) {
       </svg>
     `;
     dom.victoryBadge.textContent = "MISSION COMPROMISED";
-    dom.victoryBadge.style.color = "#f87171";
+    dom.victoryBadge.className = "victory-header-tag outcome-spy";
     dom.victoryHeadline.textContent = "SPIES WIN!";
     dom.victoryHeadline.className = "victory-headline spy-win";
     dom.victorySummary.textContent = "The undercover spies successfully deceived everyone and secured parity!";
