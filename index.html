@@ -1,177 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07090f">
   <title>SPY PROTOCOL // Undercover Agent Party Game</title>
   <meta name="description"
     content="A high-stakes pass-the-device spy party game for 3-20 players on a single device. Unmask the undercover spy among civilians!">
+  <script>
+    // Apply the saved theme before first paint to avoid a flash of the wrong theme
+    try {
+      var savedTheme = localStorage.getItem("spygame.theme");
+      if (savedTheme === "light" || savedTheme === "dark") document.documentElement.setAttribute("data-theme", savedTheme);
+    } catch (e) {}
+  </script>
+  <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%2307090f'/%3E%3Cpath d='M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6z' fill='none' stroke='%2322d3ee' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='2.6' fill='%23f43f5e'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <!-- Ambient background glow elements -->
-  <div class="bg-glow bg-glow-1"></div>
-  <div class="bg-glow bg-glow-2"></div>
-  <div class="cyber-grid"></div>
+  <!-- Ambient background -->
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+  <div class="cyber-grid" aria-hidden="true"></div>
 
   <div class="app-container">
     <!-- TOP HEADER -->
     <header class="app-header">
-      <div class="brand-badge">
-        <span class="pulse-dot"></span>
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <span class="pulse-dot"></span>
+        </span>
+        <h1 class="logo-title">SPY<span>GAME</span></h1>
       </div>
-      <h1 class="logo-title">SPY<span>GAME</span></h1>
-      <button type="button" id="btn-theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
-        <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-        <svg class="moon-icon hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-      </button>
+
+      <div class="header-actions">
+        <button type="button" id="btn-abort-game" class="icon-btn icon-btn-danger hidden" aria-label="Quit game"
+          title="Quit game">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </button>
+        <button type="button" id="btn-sound-toggle" class="icon-btn" aria-label="Mute sound" aria-pressed="false"
+          title="Sound">
+          <svg class="sound-on-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg class="sound-off-icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+        <button type="button" id="btn-theme-toggle" class="icon-btn" aria-label="Switch to light theme"
+          title="Theme">
+          <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
     </header>
+
+    <!-- IN-GAME PHASE TRACKER -->
+    <nav id="mission-hud" class="mission-hud hidden" aria-label="Game progress">
+      <ol class="phase-track">
+        <li data-phase="brief"><span class="phase-dot"></span><span class="phase-name">Briefing</span></li>
+        <li data-phase="discuss"><span class="phase-dot"></span><span class="phase-name">Discuss</span></li>
+        <li data-phase="vote"><span class="phase-dot"></span><span class="phase-name">Vote</span></li>
+        <li data-phase="verdict"><span class="phase-dot"></span><span class="phase-name">Verdict</span></li>
+      </ol>
+      <span id="hud-round" class="hud-round">R1</span>
+    </nav>
 
     <main class="main-content">
       <!-- SCREEN 1: CONFIGURATION SCREEN -->
-      <section id="screen-config" class="game-screen active">
+      <section id="screen-config" class="game-screen active" aria-labelledby="config-title">
+        <div class="config-intro">
+          <span class="eyebrow-tag">NEW OPERATION</span>
+          <h2 id="config-title" class="intro-title">Pass the device. <span>Find the spy.</span></h2>
+          <p class="intro-desc">Everyone gets a secret word except the spy, whose word is different. Describe yours, then
+            vote out whoever doesn't fit.</p>
+        </div>
+
         <div class="config-card glass-panel">
-          <div class="panel-header">
-            <span class="icon-chip">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                </path>
-              </svg>
-            </span>
-            <div>
-              <h2 class="section-title">OPERATION SETUP</h2>
-            </div>
-          </div>
-
-          <!-- PLAYERS SELECTOR -->
-          <div class="config-group">
-            <div class="group-header">
-              <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                Number of Players
-              </span>
-            </div>
-            <div class="stepper-control">
-              <button type="button" id="btn-dec-players" class="stepper-btn" aria-label="Decrease players">−</button>
-              <div class="stepper-display">
-                <span id="display-players" class="stepper-number">6</span>
-
+          <!-- PLAYERS + SPIES -->
+          <div class="config-row-2">
+            <div class="config-group">
+              <div class="group-header">
+                <span class="group-label" id="label-players">
+                  <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  Players
+                </span>
+                <span class="group-hint">3–20</span>
               </div>
-              <button type="button" id="btn-inc-players" class="stepper-btn" aria-label="Increase players">+</button>
-            </div>
-          </div>
-
-          <!-- SPIES SELECTOR -->
-          <div class="config-group">
-            <div class="group-header">
-              <span class="group-label">
-                <svg class="label-svg svg-spy" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                Undercover Spies
-              </span>
-            </div>
-            <div class="stepper-control">
-              <button type="button" id="btn-dec-spies" class="stepper-btn" aria-label="Decrease spies">−</button>
-              <div class="stepper-display">
-                <span id="display-spies" class="stepper-number spy-accent">1</span>
+              <div class="stepper-control" role="group" aria-labelledby="label-players">
+                <button type="button" id="btn-dec-players" class="stepper-btn" aria-label="Decrease players">−</button>
+                <div class="stepper-display">
+                  <span id="display-players" class="stepper-number" aria-live="polite">6</span>
+                </div>
+                <button type="button" id="btn-inc-players" class="stepper-btn" aria-label="Increase players">+</button>
               </div>
-              <button type="button" id="btn-inc-spies" class="stepper-btn" aria-label="Increase spies">+</button>
+            </div>
+
+            <div class="config-group">
+              <div class="group-header">
+                <span class="group-label" id="label-spies">
+                  <svg class="label-svg svg-spy" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  Spies
+                </span>
+                <span id="spies-limit-note" class="group-hint">max 2</span>
+              </div>
+              <div class="stepper-control" role="group" aria-labelledby="label-spies">
+                <button type="button" id="btn-dec-spies" class="stepper-btn" aria-label="Decrease spies">−</button>
+                <div class="stepper-display">
+                  <span id="display-spies" class="stepper-number spy-accent" aria-live="polite">1</span>
+                </div>
+                <button type="button" id="btn-inc-spies" class="stepper-btn" aria-label="Increase spies">+</button>
+              </div>
             </div>
           </div>
 
           <!-- TIMER SELECTION -->
           <div class="config-group">
             <div class="group-header">
-              <span class="group-label">
+              <span class="group-label" id="label-timer">
                 <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <circle cx="12" cy="12" r="10"></circle>
                   <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
                 Discussion Timer
               </span>
             </div>
-            <div class="timer-chips-grid">
-              <button type="button" class="chip-btn" data-minutes="1">1 Min</button>
-              <button type="button" class="chip-btn" data-minutes="2">2 Min</button>
-              <button type="button" class="chip-btn" data-minutes="3">3 Min</button>
-              <button type="button" class="chip-btn active" data-minutes="5">5 Min</button>
-              <button type="button" class="chip-btn" data-minutes="10">10 Min</button>
-              <button type="button" class="chip-btn" id="chip-custom-timer" data-minutes="custom">Custom</button>
+            <div class="timer-chips-grid" role="group" aria-labelledby="label-timer">
+              <button type="button" class="chip-btn" data-minutes="1" aria-pressed="false">1 min</button>
+              <button type="button" class="chip-btn" data-minutes="2" aria-pressed="false">2 min</button>
+              <button type="button" class="chip-btn" data-minutes="3" aria-pressed="false">3 min</button>
+              <button type="button" class="chip-btn active" data-minutes="5" aria-pressed="true">5 min</button>
+              <button type="button" class="chip-btn" data-minutes="10" aria-pressed="false">10 min</button>
+              <button type="button" class="chip-btn" id="chip-custom-timer" data-minutes="custom"
+                aria-pressed="false">Custom</button>
             </div>
             <div id="custom-timer-container" class="custom-timer-box hidden">
-              <label for="custom-timer-input">Custom Duration (Minutes):</label>
+              <label for="custom-timer-input">Custom duration</label>
               <div class="input-stepper-wrap">
-                <input type="number" id="custom-timer-input" min="1" max="60" value="15">
-                <span>mins</span>
+                <input type="number" id="custom-timer-input" min="1" max="60" value="15" inputmode="numeric">
+                <span>min</span>
               </div>
             </div>
           </div>
 
-          <!-- LANGUAGE SELECTOR -->
-          <div class="config-group">
-            <div class="group-header">
-              <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="2" y1="12" x2="22" y2="12"></line>
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                  </path>
-                </svg>
-                Word Language
-              </span>
+          <!-- LANGUAGE + SPY AWARENESS -->
+          <div class="config-row-2 config-row-stack-sm">
+            <div class="config-group">
+              <div class="group-header">
+                <span class="group-label" id="label-language">
+                  <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path
+                      d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                    </path>
+                  </svg>
+                  Word Language
+                </span>
+              </div>
+              <div class="language-selector-grid" role="group" aria-labelledby="label-language">
+                <button type="button" class="lang-btn active" id="lang-btn-en" data-lang="en" aria-pressed="true">
+                  <span class="lang-title">English</span>
+                </button>
+                <button type="button" class="lang-btn" id="lang-btn-fil" data-lang="fil" aria-pressed="false">
+                  <span class="lang-title">Tagalog</span>
+                </button>
+              </div>
             </div>
-            <div class="language-selector-grid">
-              <button type="button" class="lang-btn active" id="lang-btn-en" data-lang="en">
-                <span class="lang-title">English</span>
-              </button>
-              <button type="button" class="lang-btn" id="lang-btn-fil" data-lang="fil">
-                <span class="lang-title">Tagalog</span>
-              </button>
+
+            <div class="config-group">
+              <div class="group-header">
+                <span class="group-label" id="label-awareness">
+                  <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  Spy Awareness
+                </span>
+              </div>
+              <div class="language-selector-grid" role="group" aria-labelledby="label-awareness">
+                <button type="button" class="lang-btn active" id="spy-btn-unknowing" data-awareness="unknowing"
+                  aria-pressed="true">
+                  <span class="lang-title">Doesn't Know</span>
+                </button>
+                <button type="button" class="lang-btn" id="spy-btn-knowing" data-awareness="knowing"
+                  aria-pressed="false">
+                  <span class="lang-title">Knows</span>
+                </button>
+              </div>
             </div>
           </div>
+          <p id="awareness-hint" class="field-hint">The spy gets a different word and has to work out they're the spy.</p>
 
           <!-- DIFFICULTY LEVEL SELECTOR -->
           <div class="config-group">
             <div class="group-header">
-              <span class="group-label">
+              <span class="group-label" id="label-difficulty">
                 <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <polygon
                     points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
                   </polygon>
@@ -179,9 +257,9 @@
                 Word Difficulty
               </span>
             </div>
-            <div class="difficulty-selector-grid">
-              <button type="button" class="diff-btn active" id="diff-btn-random" data-diff="random">
-                <span class="diff-icon">
+            <div class="difficulty-selector-grid" role="group" aria-labelledby="label-difficulty">
+              <button type="button" class="diff-btn active" id="diff-btn-random" data-diff="random" aria-pressed="true">
+                <span class="diff-icon" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="16 3 21 3 21 8"></polyline>
@@ -193,9 +271,9 @@
                 </span>
                 <span class="diff-title">Random</span>
               </button>
-              <button type="button" class="diff-btn" id="diff-btn-easy" data-diff="easy">
-                <span class="diff-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"
+              <button type="button" class="diff-btn" id="diff-btn-easy" data-diff="easy" aria-pressed="false">
+                <span class="diff-icon diff-icon-easy" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M8 12l2.5 2.5L16 9"></path>
@@ -203,9 +281,9 @@
                 </span>
                 <span class="diff-title">Easy</span>
               </button>
-              <button type="button" class="diff-btn" id="diff-btn-medium" data-diff="medium">
-                <span class="diff-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"
+              <button type="button" class="diff-btn" id="diff-btn-medium" data-diff="medium" aria-pressed="false">
+                <span class="diff-icon diff-icon-medium" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -214,9 +292,9 @@
                 </span>
                 <span class="diff-title">Medium</span>
               </button>
-              <button type="button" class="diff-btn" id="diff-btn-hard" data-diff="hard">
-                <span class="diff-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"
+              <button type="button" class="diff-btn" id="diff-btn-hard" data-diff="hard" aria-pressed="false">
+                <span class="diff-icon diff-icon-hard" aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="12 2 2 22 22 22"></polygon>
                     <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -228,73 +306,67 @@
             </div>
           </div>
 
-          <!-- SPY AWARENESS SELECTOR -->
-          <div class="config-group">
-            <div class="group-header">
-              <span class="group-label">
-                <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
-                Spy Awareness
-              </span>
-            </div>
-            <div class="language-selector-grid">
-              <button type="button" class="lang-btn active" id="spy-btn-unknowing" data-awareness="unknowing">
-                <span class="lang-title">Doesn't Know</span>
-              </button>
-              <button type="button" class="lang-btn" id="spy-btn-knowing" data-awareness="knowing">
-                <span class="lang-title">Knows Identity</span>
-              </button>
-            </div>
-          </div>
-
           <!-- CATEGORY SELECTION (MULTIPLE) -->
           <div class="config-group">
             <div class="group-header">
-              <span class="group-label">
+              <span class="group-label" id="label-categories">
                 <svg class="label-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
                 </svg>
                 Categories
+                <span id="categories-count-badge" class="count-pill">4/6</span>
               </span>
-            </div>
-            <div class="category-actions-bar">
-              <button type="button" id="btn-select-all-cats" class="text-action-btn">Select All</button>
-              <button type="button" id="btn-clear-cats" class="text-action-btn">Deselect All</button>
+              <div class="category-actions-bar">
+                <button type="button" id="btn-select-all-cats" class="text-action-btn">All</button>
+                <span class="action-sep" aria-hidden="true">·</span>
+                <button type="button" id="btn-clear-cats" class="text-action-btn">None</button>
+              </div>
             </div>
 
-            <div id="categories-grid" class="categories-grid">
+            <div id="categories-grid" class="categories-grid" role="group" aria-labelledby="label-categories">
               <!-- Dynamically populated with SVG icons from JS -->
             </div>
-            <div id="config-error-msg" class="validation-msg hidden">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div id="config-error-msg" class="validation-msg hidden" role="alert">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                aria-hidden="true">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
               </svg>
-              Please select at least one category to launch the operation.
+              Select at least one category to start the mission.
             </div>
           </div>
+        </div>
 
-          <!-- START GAME BUTTON -->
-          <button type="button" id="btn-play-game" class="primary-btn btn-glow">
-            <span class="btn-icon">
+        <!-- STICKY START BAR -->
+        <div class="start-dock">
+          <div id="mission-summary" class="mission-summary" aria-live="polite">6 players · 1 spy · 5 min</div>
+          <button type="button" id="btn-play-game" class="primary-btn">
+            <span class="btn-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
             </span>
-            <span class="btn-text">START MISSION</span>
+            <span>START MISSION</span>
           </button>
         </div>
       </section>
 
       <!-- SCREEN 2: PRIVACY INTERMISSION (PASS THE DEVICE) -->
-      <section id="screen-privacy" class="game-screen">
+      <section id="screen-privacy" class="game-screen" aria-labelledby="privacy-player-name">
         <div class="glass-panel security-panel text-center">
-          <div class="lock-shield-icon">
+          <div class="handoff-progress">
+            <div class="handoff-progress-top">
+              <span class="eyebrow-tag">SECRET BRIEFING</span>
+              <span id="privacy-progress-label">Player 1 of 6</span>
+            </div>
+            <div class="progress-bar-track">
+              <div id="privacy-progress-bar" class="progress-bar-fill" style="width: 16%;"></div>
+            </div>
+          </div>
+
+          <div class="lock-shield-icon" aria-hidden="true">
             <span class="security-radar"></span>
             <svg class="radar-svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -302,37 +374,29 @@
             </svg>
           </div>
 
-
-
           <div class="privacy-player-tag">
-            <span class="eyebrow">PASS DEVICE TO</span>
+            <span class="eyebrow">PASS THE DEVICE TO</span>
             <h2 id="privacy-player-name" class="target-player-title">PLAYER 1</h2>
           </div>
 
           <div class="security-warning-card">
-            <p class="warning-title">
-              <svg class="inline-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2">
+            <span class="warning-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
                 </path>
                 <line x1="12" y1="9" x2="12" y2="13"></line>
                 <line x1="12" y1="17" x2="12.01" y2="17"></line>
               </svg>
-              EYES ONLY // NO PEEKING
-            </p>
-            <p class="warning-desc">It is your turn. Verify surrounding players cannot see the screen before confirming
-              identity.</p>
-          </div>
-
-          <div class="handoff-progress">
-            <span id="privacy-progress-label">Player 1 of 6</span>
-            <div class="progress-bar-track">
-              <div id="privacy-progress-bar" class="progress-bar-fill" style="width: 16%;"></div>
+            </span>
+            <div>
+              <p class="warning-title">EYES ONLY</p>
+              <p class="warning-desc">Make sure nobody else can see the screen before you continue.</p>
             </div>
           </div>
 
-          <button type="button" id="btn-confirm-identity" class="primary-btn btn-cyan btn-glow">
-            <span class="btn-icon">
+          <button type="button" id="btn-confirm-identity" class="primary-btn btn-cyan">
+            <span class="btn-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -344,40 +408,65 @@
       </section>
 
       <!-- SCREEN 3: SECRET CARD REVEAL (3D FLIP) -->
-      <section id="screen-card" class="game-screen">
+      <section id="screen-card" class="game-screen" aria-label="Your secret card">
         <div class="card-view-wrapper">
           <div class="card-view-header">
             <span id="card-player-label" class="badge">Player 1</span>
-            <span class="badge badge-subtle">Confidential</span>
+            <span class="badge badge-subtle">
+              <svg class="inline-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Confidential
+            </span>
           </div>
 
           <!-- 3D FLIP CARD CONTAINER -->
           <div class="flip-card-perspective">
             <div id="secret-card-element" class="flip-card-inner" role="button" tabindex="0"
-              aria-label="Secret role card. Tap to reveal or hide.">
+              aria-label="Secret role card. Tap to reveal or hide." aria-pressed="false">
               <!-- CARD FRONT (HIDDEN / FACEDOWN) -->
               <div class="card-face card-face-front">
                 <div class="front-mesh"></div>
+                <span class="dossier-corner dossier-tl"></span>
+                <span class="dossier-corner dossier-tr"></span>
+                <span class="dossier-corner dossier-bl"></span>
+                <span class="dossier-corner dossier-br"></span>
+                <div class="front-stamp">TOP SECRET</div>
                 <div class="front-lock-icon">
-                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                  <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                     stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                   </svg>
                 </div>
-                <h3 class="front-title">CLASSIFIED</h3>
-                <p class="front-subtitle">TAP CARD TO REVEAL</p>
+                <div>
+                  <h3 class="front-title">CLASSIFIED</h3>
+                  <p class="front-subtitle">TAP TO REVEAL</p>
+                </div>
                 <div class="fingerprint-scan">
                   <div class="scan-bar"></div>
-                  <span>TOUCH SENSOR SCAN</span>
+                  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"></path>
+                    <path d="M14 13.12c0 2.38 0 6.38-1 8.88"></path>
+                    <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"></path>
+                    <path d="M2 12a10 10 0 0 1 18-6"></path>
+                    <path d="M2 16h.01"></path>
+                    <path d="M21.8 16c.2-2 .131-5.354 0-6"></path>
+                    <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"></path>
+                    <path d="M8.65 22c.21-.66.45-1.32.57-2"></path>
+                    <path d="M9 6.8a6 6 0 0 1 9 5.2v2"></path>
+                  </svg>
                 </div>
               </div>
 
               <!-- CARD BACK (REVEALED / ROLE & WORD) -->
               <div id="card-face-back" class="card-face card-face-back role-civilian">
                 <div class="card-classified-header">
-
                   <span id="reveal-player-tag" class="player-tag-pill">PLAYER 1</span>
+                  <span class="classified-tag">DOSSIER</span>
                 </div>
 
                 <div class="role-badge-container">
@@ -398,17 +487,18 @@
                 </div>
 
                 <div class="card-instruction">
-                  <span class="tap-hint">Tap card again to hide secret</span>
+                  <span class="tap-hint">Tap again to hide</span>
                 </div>
               </div>
             </div>
           </div>
 
+          <p id="card-step-hint" class="card-step-hint">Memorise your word, then tap the card again to hide it.</p>
+
           <!-- ACTION FOOTER: ONLY SHOWN AFTER CARD IS CLOSED -->
           <div id="card-closed-controls" class="card-closed-banner hidden">
-
-            <button type="button" id="btn-next-player-pass" class="primary-btn btn-glow">
-              <span class="btn-icon">
+            <button type="button" id="btn-next-player-pass" class="primary-btn">
+              <span class="btn-icon" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M5 12h14"></path>
                   <path d="M12 5l7 7-7 7"></path>
@@ -421,43 +511,41 @@
       </section>
 
       <!-- SCREEN 4: ALL PLAYERS READY -->
-      <section id="screen-ready" class="game-screen">
+      <section id="screen-ready" class="game-screen" aria-labelledby="ready-title">
         <div class="glass-panel text-center all-ready-panel">
           <div class="mission-ready-badge">
-            <svg class="inline-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
+            <svg class="inline-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="3" aria-hidden="true">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            BRIEFING COMPLETED
+            BRIEFING COMPLETE
           </div>
-          <h2 class="ready-title">EVERYONE HAS THEIR SECRET!</h2>
-          <p class="ready-desc">All players have received their secret assignments and words. Keep your poker face
-            ready.</p>
+          <h2 id="ready-title" class="ready-title">Everyone has their secret</h2>
+          <p class="ready-desc">Put the device in the middle of the table. Poker faces on.</p>
 
           <div id="starting-player-alert" class="starting-player-alert">
-            <div class="starting-player-label">FIRST AGENT TO REPORT</div>
+            <div class="starting-player-label">FIRST TO SPEAK</div>
             <div id="starting-player-name" class="starting-player-name">Player X</div>
-            <p class="starting-player-desc">Start describing the word</p>
+            <p class="starting-player-desc">Describe your word in one clue, then go clockwise.</p>
           </div>
 
           <div class="briefing-rules-card">
             <div class="rule-item">
               <span class="rule-num">1</span>
-              <p>Civilians share the identical word. The Spy received a distinct, completely different word from that
-                category.</p>
+              <p>Civilians share the same word. The spy has a different word from the same category.</p>
             </div>
             <div class="rule-item">
               <span class="rule-num">2</span>
-              <p>Take turns describing your word face-to-face without revealing your exact secret word.</p>
+              <p>Take turns giving clues about your word without saying it.</p>
             </div>
             <div class="rule-item">
               <span class="rule-num">3</span>
-              <p>Detect whoever's answers feel out of sync or suspicious!</p>
+              <p>Listen for the clue that doesn't quite fit. That's your spy.</p>
             </div>
           </div>
 
-          <button type="button" id="btn-start-discussion" class="primary-btn btn-glow btn-green">
-            <span class="btn-icon">
+          <button type="button" id="btn-start-discussion" class="primary-btn btn-green">
+            <span class="btn-icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
@@ -468,87 +556,92 @@
       </section>
 
       <!-- SCREEN 5: DISCUSSION TIMER -->
-      <section id="screen-discussion" class="game-screen">
+      <section id="screen-discussion" class="game-screen" aria-label="Discussion">
         <div class="glass-panel discussion-panel">
           <div class="discussion-meta">
             <span class="badge" id="discussion-round-badge">Round 1</span>
-            <span class="badge badge-gold" id="discussion-spies-badge">Active Spies: 1</span>
+            <span class="badge badge-danger" id="discussion-spies-badge">Active Spies: 1</span>
           </div>
 
-          <div class="timer-display-card">
-            <div class="timer-sublabel">TIME REMAINING</div>
-            <div id="discussion-timer-clock" class="timer-clock">05:00</div>
-            <div class="timer-progress-ring">
-              <div id="timer-bar-fill" class="timer-bar-fill" style="width: 100%;"></div>
+          <div id="timer-display-card" class="timer-display-card">
+            <div class="timer-ring-wrap">
+              <svg class="timer-ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="ring-track" cx="60" cy="60" r="54"></circle>
+                <circle id="timer-ring-progress" class="ring-progress" cx="60" cy="60" r="54"></circle>
+              </svg>
+              <div class="timer-center">
+                <div class="timer-sublabel">TIME LEFT</div>
+                <div id="discussion-timer-clock" class="timer-clock" role="timer" aria-live="off">05:00</div>
+                <div id="timer-state-label" class="timer-state-label">LIVE</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TIME UP BANNER (Appears when timer reaches 0) -->
+          <div id="time-up-banner" class="alert-banner-danger hidden" role="alert">
+            <span class="alert-bell" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+            </span>
+            <div>
+              <strong>TIME'S UP!</strong>
+              <p>Discussion is over. Head to the vote.</p>
             </div>
           </div>
 
           <div class="discussion-guidelines">
             <div class="guideline-row">
-              <span class="glow-bullet">
+              <span class="glow-bullet" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
               </span>
-              <p>Discuss <strong>face-to-face</strong> and interrogate suspicions around the room.</p>
+              <p>Discuss <strong>face-to-face</strong> and question anyone who seems off.</p>
             </div>
             <div class="guideline-row">
-              <span class="glow-bullet">
+              <span class="glow-bullet glow-bullet-danger" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"></circle>
                   <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
                 </svg>
               </span>
-              <p><strong>Never say your exact secret word</strong> out loud!</p>
-            </div>
-          </div>
-
-          <!-- TIME UP BANNER (Appears when timer reaches 0) -->
-          <div id="time-up-banner" class="alert-banner-danger hidden">
-            <span class="alert-bell">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-            </span>
-            <div>
-              <strong>TIME'S UP!</strong>
-              <p>Discussion period expired. Proceed to voting.</p>
+              <p><strong>Never say your secret word</strong> out loud.</p>
             </div>
           </div>
 
           <!-- TIMER CONTROLS -->
           <div class="timer-controls-grid">
             <button type="button" id="btn-pause-resume" class="secondary-btn">
-              <span id="pause-icon">
+              <span id="pause-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="6" y="4" width="4" height="16"></rect>
                   <rect x="14" y="4" width="4" height="16"></rect>
                 </svg>
               </span>
-              <span id="pause-text">PAUSE TIMER</span>
+              <span id="pause-text">PAUSE</span>
             </button>
-            <button type="button" id="btn-go-voting" class="primary-btn btn-gold btn-glow">
-              <span class="btn-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button type="button" id="btn-go-voting" class="primary-btn btn-gold">
+              <span class="btn-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                   <path d="M9 11l3 3L22 4"></path>
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                 </svg>
               </span>
-              <span>GO TO VOTING</span>
+              <span>GO TO VOTE</span>
             </button>
           </div>
         </div>
       </section>
 
       <!-- SCREEN 6: FACE-TO-FACE VOTING ROSTER -->
-      <section id="screen-voting" class="game-screen">
+      <section id="screen-voting" class="game-screen" aria-labelledby="voting-title">
         <div class="glass-panel voting-panel">
           <div class="voting-header">
             <span class="badge badge-gold">COUNCIL VOTE</span>
-            <h2 class="voting-title">WHO IS THE SPY?</h2>
-            <p class="voting-desc">Vote verbally face-to-face. The host then taps the suspect chosen by the group for
-              elimination.</p>
+            <h2 id="voting-title" class="voting-title">Who is the spy?</h2>
+            <p class="voting-desc">Vote out loud. The host then taps the player the group chose.</p>
           </div>
 
           <div class="voting-status-summary">
@@ -556,7 +649,7 @@
               <span class="pill-label">ALIVE</span>
               <span id="alive-count" class="pill-val">6</span>
             </div>
-            <div class="summary-pill">
+            <div class="summary-pill summary-pill-danger">
               <span class="pill-label">ELIMINATED</span>
               <span id="elim-count" class="pill-val">0</span>
             </div>
@@ -570,7 +663,7 @@
       </section>
 
       <!-- SCREEN 7: DRAMATIC ROLE REVEAL -->
-      <section id="screen-reveal" class="game-screen">
+      <section id="screen-reveal" class="game-screen" aria-labelledby="reveal-outcome-title">
         <div class="glass-panel text-center reveal-result-panel">
           <div class="classified-stamp" id="reveal-stamp">INTERROGATION VERDICT</div>
 
@@ -585,8 +678,8 @@
             <div id="reveal-remaining-spies-note" class="remaining-spies-badge">1 Spy Still Active</div>
           </div>
 
-          <button type="button" id="btn-continue-game" class="primary-btn btn-glow">
-            <span class="btn-icon">
+          <button type="button" id="btn-continue-game" class="primary-btn">
+            <span class="btn-icon" aria-hidden="true">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
@@ -597,7 +690,7 @@
       </section>
 
       <!-- SCREEN 8: GAME OVER / VICTORY SCREEN -->
-      <section id="screen-gameover" class="game-screen">
+      <section id="screen-gameover" class="game-screen" aria-labelledby="victory-headline">
         <div class="glass-panel text-center victory-panel">
           <div id="victory-confetti" class="victory-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -613,35 +706,34 @@
 
           <!-- SECRET WORDS REVEAL AT GAME OVER -->
           <div class="words-recap-card">
-            <div class="recap-row">
-              <span class="recap-label">Category:</span>
-              <strong id="recap-category">Food</strong>
-            </div>
-            <div class="recap-row">
-              <span class="recap-label">Difficulty:</span>
+            <div class="recap-meta">
+              <span class="recap-meta-item"><span class="recap-label">Category</span> <strong
+                  id="recap-category">Food</strong></span>
               <strong id="recap-difficulty" class="diff-recap-tag">Random</strong>
             </div>
-            <div class="recap-row">
-              <span class="recap-label">Civilian Word:</span>
-              <strong id="recap-civ-word" class="civ-word-highlight">SINIGANG</strong>
+            <div class="recap-words">
+              <div class="recap-word recap-word-civ">
+                <span class="recap-label">Civilian word</span>
+                <strong id="recap-civ-word" class="civ-word-highlight">SINIGANG</strong>
+                <div id="recap-civ-desc" class="recap-word-desc"></div>
+              </div>
+              <div class="recap-word recap-word-spy">
+                <span class="recap-label">Spy word</span>
+                <strong id="recap-spy-word" class="spy-word-highlight">SPAGHETTI</strong>
+                <div id="recap-spy-desc" class="recap-word-desc"></div>
+              </div>
             </div>
-            <div id="recap-civ-desc" class="recap-word-desc"></div>
-            <div class="recap-row">
-              <span class="recap-label">Spy Word:</span>
-              <strong id="recap-spy-word" class="spy-word-highlight">SPAGHETTI</strong>
-            </div>
-            <div id="recap-spy-desc" class="recap-word-desc"></div>
           </div>
 
           <!-- STATS GRID -->
           <div class="stats-card-grid">
             <div class="stat-box">
               <span class="stat-num" id="stat-total-players">6</span>
-              <span class="stat-sub">Total Players</span>
+              <span class="stat-sub">Players</span>
             </div>
             <div class="stat-box">
               <span class="stat-num" id="stat-total-spies">1</span>
-              <span class="stat-sub">Total Spies</span>
+              <span class="stat-sub">Spies</span>
             </div>
             <div class="stat-box">
               <span class="stat-num" id="stat-rounds-played">2</span>
@@ -649,7 +741,7 @@
             </div>
             <div class="stat-box">
               <span class="stat-num" id="stat-civs-left">4</span>
-              <span class="stat-sub">Civilians Left</span>
+              <span class="stat-sub">Civilians left</span>
             </div>
           </div>
 
@@ -663,8 +755,8 @@
 
           <!-- ACTION BUTTONS -->
           <div class="gameover-actions">
-            <button type="button" id="btn-play-again" class="primary-btn btn-glow btn-green">
-              <span class="btn-icon">
+            <button type="button" id="btn-play-again" class="primary-btn btn-green">
+              <span class="btn-icon" aria-hidden="true">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="23 4 23 10 17 10"></polyline>
                   <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
@@ -673,15 +765,21 @@
               <span>PLAY AGAIN</span>
             </button>
             <button type="button" id="btn-new-game" class="secondary-btn">
-              <span class="btn-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="3"></circle>
-                  <path
-                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                  </path>
+              <span class="btn-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="4" y1="21" x2="4" y2="14"></line>
+                  <line x1="4" y1="10" x2="4" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12" y2="3"></line>
+                  <line x1="20" y1="21" x2="20" y2="16"></line>
+                  <line x1="20" y1="12" x2="20" y2="3"></line>
+                  <line x1="1" y1="14" x2="7" y2="14"></line>
+                  <line x1="9" y1="8" x2="15" y2="8"></line>
+                  <line x1="17" y1="16" x2="23" y2="16"></line>
                 </svg>
               </span>
-              <span>NEW GAME CONFIG</span>
+              <span>CHANGE SETUP</span>
             </button>
           </div>
         </div>
@@ -690,24 +788,54 @@
 
     <!-- CONFIRMATION MODAL FOR ELIMINATING A PLAYER -->
     <div id="modal-confirm-elim" class="modal-backdrop hidden">
-      <div class="modal-card glass-panel text-center">
-        <div class="modal-icon">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      <div class="modal-card glass-panel text-center" role="alertdialog" aria-modal="true"
+        aria-labelledby="modal-elim-title" aria-describedby="modal-elim-desc">
+        <div class="modal-icon modal-icon-gold" aria-hidden="true">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="22" y1="12" x2="18" y2="12"></line>
+            <line x1="6" y1="12" x2="2" y2="12"></line>
+            <line x1="12" y1="6" x2="12" y2="2"></line>
+            <line x1="12" y1="22" x2="12" y2="18"></line>
           </svg>
         </div>
         <h3 id="modal-elim-title" class="modal-title">Eliminate Player 3?</h3>
-        <p class="modal-desc">This player will be eliminated from the game and their classified identity will be
-          revealed to everyone.</p>
+        <p id="modal-elim-desc" class="modal-desc">They're out of the game and their identity is revealed to everyone.
+        </p>
 
         <div class="modal-actions">
           <button type="button" id="btn-modal-cancel" class="secondary-btn">CANCEL</button>
-          <button type="button" id="btn-modal-confirm" class="primary-btn btn-danger btn-glow">REVEAL ROLE</button>
+          <button type="button" id="btn-modal-confirm" class="primary-btn btn-danger">REVEAL ROLE</button>
         </div>
       </div>
     </div>
+
+    <!-- CONFIRMATION MODAL FOR QUITTING THE CURRENT GAME -->
+    <div id="modal-confirm-abort" class="modal-backdrop hidden">
+      <div class="modal-card glass-panel text-center" role="alertdialog" aria-modal="true"
+        aria-labelledby="modal-abort-title" aria-describedby="modal-abort-desc">
+        <div class="modal-icon modal-icon-danger" aria-hidden="true">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+        </div>
+        <h3 id="modal-abort-title" class="modal-title">Quit this game?</h3>
+        <p id="modal-abort-desc" class="modal-desc">This round ends now and you go back to setup. Your settings are
+          kept.</p>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-abort-cancel" class="secondary-btn">KEEP PLAYING</button>
+          <button type="button" id="btn-abort-confirm" class="primary-btn btn-danger">QUIT GAME</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
   </div>
 
   <script src="script.js"></script>

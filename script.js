@@ -6783,7 +6783,7 @@ const gameState = {
   spyWord: "",
   wordTier: "RANDOM",
   spyAwareness: "unknowing",
-  
+
   // Runtime session states
   cardRevealed: false,
   cardEverRevealedByCurrentPlayer: false,
@@ -6793,10 +6793,72 @@ const gameState = {
   pendingEliminationId: null
 };
 
+const MIN_PLAYERS = 3;
+const MAX_PLAYERS = 20;
+const TIMER_RING_CIRCUMFERENCE = 2 * Math.PI * 54;
+
+function getMaxSpies(totalPlayers) {
+  return Math.max(1, Math.floor((totalPlayers - 1) / 2));
+}
+
+// 2.5. Persistent preferences (theme, sound, last-used setup)
+const storage = {
+  get(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  },
+  set(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  }
+};
+
+const SETTINGS_KEY = "spygame.settings.v1";
+
+function saveSettings() {
+  storage.set(SETTINGS_KEY, JSON.stringify({
+    language: gameState.language,
+    difficulty: gameState.difficulty,
+    totalPlayers: gameState.totalPlayers,
+    totalSpies: gameState.totalSpies,
+    selectedTimerMinutes: gameState.selectedTimerMinutes,
+    customTimerMinutes: dom.customTimerInput ? dom.customTimerInput.value : "15",
+    selectedCategories: gameState.selectedCategories,
+    spyAwareness: gameState.spyAwareness
+  }));
+}
+
+function loadSettings() {
+  let saved;
+  try { saved = JSON.parse(storage.get(SETTINGS_KEY)); } catch (e) { saved = null; }
+  if (!saved || typeof saved !== "object") return;
+
+  if (saved.language === "en" || saved.language === "fil") gameState.language = saved.language;
+  if (["easy", "medium", "hard", "random"].includes(saved.difficulty)) gameState.difficulty = saved.difficulty;
+  if (["unknowing", "knowing"].includes(saved.spyAwareness)) gameState.spyAwareness = saved.spyAwareness;
+
+  const players = parseInt(saved.totalPlayers, 10);
+  if (players >= MIN_PLAYERS && players <= MAX_PLAYERS) gameState.totalPlayers = players;
+  const spies = parseInt(saved.totalSpies, 10);
+  if (spies >= 1) gameState.totalSpies = Math.min(spies, getMaxSpies(gameState.totalPlayers));
+
+  if (saved.selectedTimerMinutes === "custom" || [1, 2, 3, 5, 10].includes(saved.selectedTimerMinutes)) {
+    gameState.selectedTimerMinutes = saved.selectedTimerMinutes;
+  }
+  const customMins = parseInt(saved.customTimerMinutes, 10);
+  if (dom.customTimerInput && customMins >= 1 && customMins <= 60) dom.customTimerInput.value = customMins;
+
+  if (Array.isArray(saved.selectedCategories)) {
+    const validKeys = Object.keys(localizedDatabases[gameState.language]);
+    const cats = saved.selectedCategories.filter(c => validKeys.includes(c));
+    if (cats.length > 0) gameState.selectedCategories = cats;
+  }
+}
+
 // 3. Audio synthesis for realistic tactical sound feedback (Zero external files)
 const soundFx = {
   ctx: null,
+  enabled: true,
   getAudioContext() {
+    if (!this.enabled) return null;
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) this.ctx = new AudioCtx();
@@ -6878,6 +6940,12 @@ const soundFx = {
   }
 };
 
+// Short haptic pulse on supported phones (no-op elsewhere)
+function vibrate(pattern) {
+  if (!soundFx.enabled) return;
+  try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+}
+
 // 4. DOM Elements Cache
 const screens = {
   config: document.getElementById("screen-config"),
@@ -6891,32 +6959,32 @@ const screens = {
 };
 
 const dom = {
-  // Theme
+  // Header & HUD
   btnThemeToggle: document.getElementById("btn-theme-toggle"),
+  btnSoundToggle: document.getElementById("btn-sound-toggle"),
+  btnAbortGame: document.getElementById("btn-abort-game"),
+  missionHud: document.getElementById("mission-hud"),
+  hudRound: document.getElementById("hud-round"),
+  toastRegion: document.getElementById("toast-region"),
 
   // Steppers
   btnDecPlayers: document.getElementById("btn-dec-players"),
   btnIncPlayers: document.getElementById("btn-inc-players"),
   displayPlayers: document.getElementById("display-players"),
-  playersBadge: document.getElementById("players-badge"),
 
   btnDecSpies: document.getElementById("btn-dec-spies"),
   btnIncSpies: document.getElementById("btn-inc-spies"),
   displaySpies: document.getElementById("display-spies"),
-  spiesBadge: document.getElementById("spies-badge"),
   spiesLimitNote: document.getElementById("spies-limit-note"),
 
   // Language buttons
-  langBadge: document.getElementById("language-badge"),
   langBtnEn: document.getElementById("lang-btn-en"),
   langBtnFil: document.getElementById("lang-btn-fil"),
 
   // Difficulty buttons
-  diffBadge: document.getElementById("difficulty-badge"),
   diffButtons: document.querySelectorAll(".difficulty-selector-grid .diff-btn"),
 
   // Timer configuration
-  timerBadge: document.getElementById("timer-badge"),
   timerChips: document.querySelectorAll(".timer-chips-grid .chip-btn"),
   customTimerBox: document.getElementById("custom-timer-container"),
   customTimerInput: document.getElementById("custom-timer-input"),
@@ -6924,7 +6992,7 @@ const dom = {
   // Spy Awareness
   spyBtnUnknowing: document.getElementById("spy-btn-unknowing"),
   spyBtnKnowing: document.getElementById("spy-btn-knowing"),
-  spyAwarenessBadge: document.getElementById("spy-awareness-badge"),
+  awarenessHint: document.getElementById("awareness-hint"),
 
   // Categories
   categoriesGrid: document.getElementById("categories-grid"),
@@ -6932,6 +7000,7 @@ const dom = {
   btnSelectAllCats: document.getElementById("btn-select-all-cats"),
   btnClearCats: document.getElementById("btn-clear-cats"),
   configErrorMsg: document.getElementById("config-error-msg"),
+  missionSummary: document.getElementById("mission-summary"),
   btnPlayGame: document.getElementById("btn-play-game"),
 
   // Privacy Handoff Screen
@@ -6952,6 +7021,7 @@ const dom = {
   revealCatHint: document.getElementById("reveal-cat-hint"),
   revealSecretWord: document.getElementById("reveal-secret-word"),
   revealWordDesc: document.getElementById("reveal-word-desc"),
+  cardStepHint: document.getElementById("card-step-hint"),
   cardClosedControls: document.getElementById("card-closed-controls"),
   btnNextPlayerPass: document.getElementById("btn-next-player-pass"),
   btnPassNextText: document.getElementById("btn-pass-next-text"),
@@ -6963,7 +7033,9 @@ const dom = {
   discussionRoundBadge: document.getElementById("discussion-round-badge"),
   discussionSpiesBadge: document.getElementById("discussion-spies-badge"),
   discussionTimerClock: document.getElementById("discussion-timer-clock"),
-  timerBarFill: document.getElementById("timer-bar-fill"),
+  timerDisplayCard: document.getElementById("timer-display-card"),
+  timerRingProgress: document.getElementById("timer-ring-progress"),
+  timerStateLabel: document.getElementById("timer-state-label"),
   timeUpBanner: document.getElementById("time-up-banner"),
   btnPauseResume: document.getElementById("btn-pause-resume"),
   pauseIcon: document.getElementById("pause-icon"),
@@ -6980,6 +7052,11 @@ const dom = {
   modalElimTitle: document.getElementById("modal-elim-title"),
   btnModalCancel: document.getElementById("btn-modal-cancel"),
   btnModalConfirm: document.getElementById("btn-modal-confirm"),
+
+  // Quit Game Modal
+  modalConfirmAbort: document.getElementById("modal-confirm-abort"),
+  btnAbortCancel: document.getElementById("btn-abort-cancel"),
+  btnAbortConfirm: document.getElementById("btn-abort-confirm"),
 
   // Reveal Screen
   revealStamp: document.getElementById("reveal-stamp"),
@@ -7012,7 +7089,55 @@ const dom = {
   btnNewGame: document.getElementById("btn-new-game")
 };
 
+// 4.5. Toast notifications
+function showToast(message, tone) {
+  if (!dom.toastRegion) return;
+  const toast = document.createElement("div");
+  toast.className = `toast${tone === "warn" ? " toast-warn" : ""}`;
+  toast.textContent = message;
+  dom.toastRegion.appendChild(toast);
+  while (dom.toastRegion.children.length > 2) dom.toastRegion.firstChild.remove();
+  setTimeout(() => {
+    toast.classList.add("toast-leaving");
+    setTimeout(() => toast.remove(), 260);
+  }, 2200);
+}
+
 // 5. Screen Navigation Manager
+// Which step of the phase tracker each in-game screen belongs to
+const SCREEN_PHASES = {
+  privacy: "brief",
+  card: "brief",
+  ready: "brief",
+  discussion: "discuss",
+  voting: "vote",
+  reveal: "verdict"
+};
+const PHASE_ORDER = ["brief", "discuss", "vote", "verdict"];
+
+function updateMissionHud(targetScreenKey) {
+  const inGame = targetScreenKey !== "config";
+  if (dom.btnAbortGame) dom.btnAbortGame.classList.toggle("hidden", !inGame || targetScreenKey === "gameover");
+  if (!dom.missionHud) return;
+
+  const phase = SCREEN_PHASES[targetScreenKey];
+  dom.missionHud.classList.toggle("hidden", !phase);
+  if (!phase) return;
+
+  const currentIdx = PHASE_ORDER.indexOf(phase);
+  dom.missionHud.querySelectorAll(".phase-track li").forEach(li => {
+    const idx = PHASE_ORDER.indexOf(li.dataset.phase);
+    li.classList.toggle("done", idx < currentIdx);
+    li.classList.toggle("current", idx === currentIdx);
+    if (idx === currentIdx) li.setAttribute("aria-current", "step");
+    else li.removeAttribute("aria-current");
+  });
+  if (dom.hudRound) {
+    dom.hudRound.textContent = `R${gameState.currentRound}`;
+    dom.hudRound.setAttribute("aria-label", `Round ${gameState.currentRound}`);
+  }
+}
+
 function switchScreen(targetScreenKey) {
   Object.values(screens).forEach(screen => {
     if (screen) screen.classList.remove("active");
@@ -7020,7 +7145,21 @@ function switchScreen(targetScreenKey) {
   if (screens[targetScreenKey]) {
     screens[targetScreenKey].classList.add("active");
     window.scrollTo({ top: 0, behavior: "smooth" });
+    updateMissionHud(targetScreenKey);
+    // Move focus into the new screen so keyboard and screen-reader users follow the flow
+    screens[targetScreenKey].setAttribute("tabindex", "-1");
+    screens[targetScreenKey].focus({ preventScroll: true });
   }
+}
+
+// Reflect a single-choice selection onto a group of buttons
+function setActiveButton(buttons, isActive) {
+  buttons.forEach(btn => {
+    if (!btn) return;
+    const active = isActive(btn);
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  });
 }
 
 // 6. Language Selector Handler
@@ -7028,40 +7167,43 @@ function setLanguage(langKey) {
   if (langKey !== "en" && langKey !== "fil") return;
   gameState.language = langKey;
 
-  if (langKey === "en") {
-    dom.langBtnEn.classList.add("active");
-    dom.langBtnFil.classList.remove("active");
-  } else {
-    dom.langBtnFil.classList.add("active");
-    dom.langBtnEn.classList.remove("active");
-  }
+  setActiveButton([dom.langBtnEn, dom.langBtnFil], btn => btn.dataset.lang === langKey);
 
   renderCategoryCards();
-}// 7. Difficulty Selector Handler
+  saveSettings();
+}
+
+// 7. Difficulty Selector Handler
 function setDifficulty(diffKey) {
   const valid = ["easy", "medium", "hard", "random"];
   if (!valid.includes(diffKey)) return;
   gameState.difficulty = diffKey;
 
-  dom.diffButtons.forEach(btn => {
-    if (btn.dataset.diff === diffKey) {
-      btn.classList.add("active");
-    } else {
-      btn.classList.remove("active");
-    }
-  });
-
+  setActiveButton(dom.diffButtons, btn => btn.dataset.diff === diffKey);
+  saveSettings();
 }
 
 function setSpyAwareness(awarenessKey) {
   gameState.spyAwareness = awarenessKey;
-  if (awarenessKey === "unknowing") {
-    if(dom.spyBtnUnknowing) dom.spyBtnUnknowing.classList.add("active");
-    if(dom.spyBtnKnowing) dom.spyBtnKnowing.classList.remove("active");
-  } else {
-    if(dom.spyBtnKnowing) dom.spyBtnKnowing.classList.add("active");
-    if(dom.spyBtnUnknowing) dom.spyBtnUnknowing.classList.remove("active");
+  setActiveButton([dom.spyBtnUnknowing, dom.spyBtnKnowing], btn => btn.dataset.awareness === awarenessKey);
+
+  if (dom.awarenessHint) {
+    dom.awarenessHint.textContent = awarenessKey === "knowing"
+      ? "The spy is told they're the spy, but doesn't get a word."
+      : "The spy gets a different word and has to work out they're the spy.";
   }
+  saveSettings();
+}
+
+function setTimerSelection(minutes) {
+  gameState.selectedTimerMinutes = minutes;
+  setActiveButton(dom.timerChips, chip => {
+    const val = chip.dataset.minutes;
+    return val === "custom" ? minutes === "custom" : parseInt(val, 10) === minutes;
+  });
+  if (dom.customTimerBox) dom.customTimerBox.classList.toggle("hidden", minutes !== "custom");
+  updateMissionSummary();
+  saveSettings();
 }
 
 // 8. Category Selection Renderer & Handlers
@@ -7073,18 +7215,17 @@ function renderCategoryCards() {
     const catData = currentDb[catKey];
     const isSelected = gameState.selectedCategories.includes(catKey);
 
-    const card = document.createElement("div");
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = `category-card ${isSelected ? "selected" : ""}`;
-    card.setAttribute("role", "checkbox");
-    card.setAttribute("aria-checked", isSelected);
+    card.setAttribute("aria-pressed", isSelected ? "true" : "false");
+    card.dataset.cat = catKey;
     card.innerHTML = `
       <div class="cat-left">
-        <div class="cat-icon-svg">${catData.svg}</div>
-        <div>
-          <span class="cat-name">${catData.title}</span>
-        </div>
+        <div class="cat-icon-svg" aria-hidden="true">${catData.svg}</div>
+        <span class="cat-name">${catData.title}</span>
       </div>
-      <div class="cat-check">
+      <div class="cat-check" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
       </div>
     `;
@@ -7104,7 +7245,7 @@ function toggleCategory(catKey) {
   if (idx > -1) {
     if (gameState.selectedCategories.length === 1) {
       // Must keep at least 1 category selected
-      dom.configErrorMsg.classList.remove("hidden");
+      showToast("Keep at least one category selected", "warn");
       soundFx.playAlert();
       return;
     }
@@ -7113,36 +7254,74 @@ function toggleCategory(catKey) {
     gameState.selectedCategories.push(catKey);
     dom.configErrorMsg.classList.add("hidden");
   }
-  renderCategoryCards();
+
+  // Update in place so keyboard focus stays on the toggled card
+  const card = dom.categoriesGrid.querySelector(`[data-cat="${catKey}"]`);
+  if (card) {
+    const isSelected = gameState.selectedCategories.includes(catKey);
+    card.classList.toggle("selected", isSelected);
+    card.setAttribute("aria-pressed", isSelected ? "true" : "false");
+  }
+  updateCategoryBadge();
+  saveSettings();
 }
 
 function updateCategoryBadge() {
-  // Badge removed to simplify UI
+  const total = Object.keys(localizedDatabases[gameState.language]).length;
+  if (dom.categoriesCountBadge) {
+    dom.categoriesCountBadge.textContent = `${gameState.selectedCategories.length}/${total}`;
+  }
+  updateMissionSummary();
 }
 
 // 9. Input Steppers & Form Validation
+function getConfiguredTimerMinutes() {
+  if (gameState.selectedTimerMinutes !== "custom") return gameState.selectedTimerMinutes;
+  let customVal = parseInt(dom.customTimerInput.value, 10);
+  if (isNaN(customVal) || customVal < 1) customVal = 1;
+  if (customVal > 60) customVal = 60;
+  return customVal;
+}
+
+function updateMissionSummary() {
+  if (!dom.missionSummary) return;
+  const spies = gameState.totalSpies;
+  const cats = gameState.selectedCategories.length;
+  dom.missionSummary.innerHTML =
+    `${gameState.totalPlayers} players · <span class="sum-spy">${spies} ${spies === 1 ? "spy" : "spies"}</span> · ` +
+    `${getConfiguredTimerMinutes()} min · ${cats} ${cats === 1 ? "category" : "categories"}`;
+}
+
+function bumpNumber(el) {
+  if (!el) return;
+  el.classList.remove("bump");
+  void el.offsetWidth; // restart the animation
+  el.classList.add("bump");
+}
+
 function updateStepperDisplays() {
+  const maxSpies = getMaxSpies(gameState.totalPlayers);
   dom.displayPlayers.textContent = gameState.totalPlayers;
   dom.displaySpies.textContent = gameState.totalSpies;
+
+  dom.btnDecPlayers.disabled = gameState.totalPlayers <= MIN_PLAYERS;
+  dom.btnIncPlayers.disabled = gameState.totalPlayers >= MAX_PLAYERS;
+  dom.btnDecSpies.disabled = gameState.totalSpies <= 1;
+  dom.btnIncSpies.disabled = gameState.totalSpies >= maxSpies;
+  if (dom.spiesLimitNote) dom.spiesLimitNote.textContent = `max ${maxSpies}`;
+
+  updateMissionSummary();
 }
 
 function validateConfiguration() {
   if (gameState.selectedCategories.length === 0) {
     dom.configErrorMsg.classList.remove("hidden");
+    dom.configErrorMsg.scrollIntoView({ behavior: "smooth", block: "center" });
     return false;
   }
   dom.configErrorMsg.classList.add("hidden");
 
-  // Timer parsing
-  if (gameState.selectedTimerMinutes === "custom") {
-    let customVal = parseInt(dom.customTimerInput.value, 10);
-    if (isNaN(customVal) || customVal < 1) customVal = 1;
-    if (customVal > 60) customVal = 60;
-    gameState.timerDuration = customVal * 60;
-  } else {
-    gameState.timerDuration = gameState.selectedTimerMinutes * 60;
-  }
-
+  gameState.timerDuration = getConfiguredTimerMinutes() * 60;
   return true;
 }
 
@@ -7241,6 +7420,7 @@ function startGame() {
   }
 
   soundFx.playClick();
+  saveSettings();
   selectRandomWord();
   generatePlayers();
   assignRoles();
@@ -7260,7 +7440,7 @@ function showPlayerTurn() {
 
   dom.privacyPlayerName.textContent = player.name;
   dom.btnIdentityLabel.textContent = `I AM ${player.name.toUpperCase()}`;
-  dom.privacyProgressLabel.textContent = `Player ${gameState.currentPlayerIndex + 1} of ${gameState.totalPlayers}`;
+  dom.privacyProgressLabel.textContent = `${gameState.currentPlayerIndex + 1} / ${gameState.totalPlayers}`;
 
   const pct = Math.round(((gameState.currentPlayerIndex + 1) / gameState.totalPlayers) * 100);
   dom.privacyProgressBar.style.width = `${pct}%`;
@@ -7276,7 +7456,12 @@ function setupSecretCardForCurrentPlayer() {
   gameState.cardRevealed = false;
   gameState.cardEverRevealedByCurrentPlayer = false;
   dom.secretCardElement.classList.remove("is-flipped");
+  dom.secretCardElement.setAttribute("aria-pressed", "false");
   dom.cardClosedControls.classList.add("hidden");
+  if (dom.cardStepHint) {
+    dom.cardStepHint.textContent = "Tap the card to see your role and secret word.";
+    dom.cardStepHint.classList.remove("hidden");
+  }
 
   // Populate data
   dom.cardPlayerLabel.textContent = player.name;
@@ -7298,6 +7483,9 @@ function setupSecretCardForCurrentPlayer() {
   }
 
   dom.revealSecretWord.textContent = displayWord;
+  // Long words (common in Tagalog phrases) get a smaller size so they never overflow the card
+  dom.revealSecretWord.classList.toggle("word-long", displayWord.length > 11 && displayWord.length <= 18);
+  dom.revealSecretWord.classList.toggle("word-xlong", displayWord.length > 18);
   if (dom.revealWordDesc) {
     if (hideWordBox || !displayWord) {
       dom.revealWordDesc.textContent = "";
@@ -7330,9 +7518,8 @@ function setupSecretCardForCurrentPlayer() {
     dom.cardFaceBack.className = "card-face card-face-back role-spy";
     dom.revealRoleIcon.innerHTML = `
       <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
       </svg>
     `;
     dom.revealRoleTitle.textContent = "SPY";
@@ -7349,10 +7536,10 @@ function setupSecretCardForCurrentPlayer() {
 
   const isLastPlayer = gameState.currentPlayerIndex === gameState.totalPlayers - 1;
   if (isLastPlayer) {
-    dom.btnPassNextText.textContent = "ALL PLAYERS READY → START BRIEFING";
+    dom.btnPassNextText.textContent = "EVERYONE'S READY";
   } else {
     const nextPlayerNum = gameState.currentPlayerIndex + 2;
-    dom.btnPassNextText.textContent = `PASS DEVICE TO PLAYER ${nextPlayerNum}`;
+    dom.btnPassNextText.textContent = `PASS TO PLAYER ${nextPlayerNum}`;
   }
 
   switchScreen("card");
@@ -7363,16 +7550,25 @@ function toggleSecretCard() {
     gameState.cardRevealed = true;
     gameState.cardEverRevealedByCurrentPlayer = true;
     dom.secretCardElement.classList.add("is-flipped");
+    dom.secretCardElement.setAttribute("aria-pressed", "true");
     dom.cardClosedControls.classList.add("hidden");
+    if (dom.cardStepHint) {
+      dom.cardStepHint.textContent = "Memorise it, then tap the card again to hide it.";
+      dom.cardStepHint.classList.remove("hidden");
+    }
     soundFx.playFlip();
+    vibrate(15);
   } else {
     gameState.cardRevealed = false;
     dom.secretCardElement.classList.remove("is-flipped");
+    dom.secretCardElement.setAttribute("aria-pressed", "false");
     soundFx.playFlip();
 
     if (gameState.cardEverRevealedByCurrentPlayer) {
+      if (dom.cardStepHint) dom.cardStepHint.classList.add("hidden");
       setTimeout(() => {
-        dom.cardClosedControls.classList.remove("hidden");
+        // The card may have been flipped open again during the delay
+        if (!gameState.cardRevealed) dom.cardClosedControls.classList.remove("hidden");
       }, 400);
     }
   }
@@ -7395,6 +7591,18 @@ function handlePassToNextPlayer() {
 }
 
 // 11. Discussion & Interactive Countdown Timer
+const PAUSE_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+const PLAY_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+
+function setPauseButtonState(isPaused) {
+  dom.pauseIcon.innerHTML = isPaused ? PLAY_ICON_SVG : PAUSE_ICON_SVG;
+  dom.pauseText.textContent = isPaused ? "RESUME" : "PAUSE";
+  if (dom.timerDisplayCard) dom.timerDisplayCard.classList.toggle("is-paused", isPaused);
+  if (dom.timerStateLabel && gameState.timeRemaining > 0) {
+    dom.timerStateLabel.textContent = isPaused ? "PAUSED" : "LIVE";
+  }
+}
+
 function startDiscussion() {
   soundFx.playClick();
   gameState.timeRemaining = gameState.timerDuration;
@@ -7404,8 +7612,9 @@ function startDiscussion() {
   updateTimerDisplay();
 
   dom.timeUpBanner.classList.add("hidden");
-  dom.pauseIcon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
-  dom.pauseText.textContent = "PAUSE TIMER";
+  if (dom.timerDisplayCard) dom.timerDisplayCard.classList.remove("is-done");
+  dom.btnPauseResume.disabled = false;
+  setPauseButtonState(false);
 
   switchScreen("discussion");
   startTimerInterval();
@@ -7426,16 +7635,14 @@ function formatTimer(seconds) {
 function updateTimerDisplay() {
   dom.discussionTimerClock.textContent = formatTimer(gameState.timeRemaining);
 
-  const pct = Math.max(0, (gameState.timeRemaining / gameState.timerDuration) * 100);
-  dom.timerBarFill.style.width = `${pct}%`;
-
-  if (gameState.timeRemaining <= 30 && gameState.timeRemaining > 0) {
-    dom.discussionTimerClock.classList.add("clock-urgent");
-    dom.timerBarFill.classList.add("bar-urgent");
-  } else {
-    dom.discussionTimerClock.classList.remove("clock-urgent");
-    dom.timerBarFill.classList.remove("bar-urgent");
+  const fraction = Math.max(0, gameState.timeRemaining / gameState.timerDuration);
+  if (dom.timerRingProgress) {
+    dom.timerRingProgress.style.strokeDashoffset = `${TIMER_RING_CIRCUMFERENCE * (1 - fraction)}`;
   }
+
+  const urgent = gameState.timeRemaining <= 30;
+  dom.discussionTimerClock.classList.toggle("clock-urgent", urgent && gameState.timeRemaining > 0);
+  if (dom.timerDisplayCard) dom.timerDisplayCard.classList.toggle("ring-urgent", urgent);
 }
 
 function startTimerInterval() {
@@ -7448,23 +7655,21 @@ function startTimerInterval() {
       if (gameState.timeRemaining === 0) {
         clearInterval(gameState.timerInterval);
         soundFx.playAlert();
+        vibrate([200, 100, 200]);
         dom.timeUpBanner.classList.remove("hidden");
+        if (dom.timerDisplayCard) dom.timerDisplayCard.classList.add("is-done");
+        if (dom.timerStateLabel) dom.timerStateLabel.textContent = "TIME'S UP";
+        dom.btnPauseResume.disabled = true;
       }
     }
   }, 1000);
 }
 
 function togglePauseResumeTimer() {
+  if (gameState.timeRemaining <= 0) return;
   soundFx.playClick();
-  if (gameState.isTimerPaused) {
-    gameState.isTimerPaused = false;
-    dom.pauseIcon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
-    dom.pauseText.textContent = "PAUSE TIMER";
-  } else {
-    gameState.isTimerPaused = true;
-    dom.pauseIcon.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
-    dom.pauseText.textContent = "RESUME TIMER";
-  }
+  gameState.isTimerPaused = !gameState.isTimerPaused;
+  setPauseButtonState(gameState.isTimerPaused);
 }
 
 // 12. Face-to-Face Voting System
@@ -7485,20 +7690,24 @@ function renderVotingGrid() {
   dom.elimCount.textContent = eliminatedPlayers.length;
 
   gameState.players.forEach(player => {
-    const card = document.createElement("div");
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = `player-vote-card ${player.eliminated ? "eliminated" : ""}`;
 
     if (player.eliminated) {
+      card.disabled = true;
+      card.setAttribute("aria-label", `${player.name}, already eliminated`);
       card.innerHTML = `
-        <div class="player-avatar-circle">
+        <div class="player-avatar-circle" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
         </div>
         <div class="vote-card-name">${player.name}</div>
         <span class="eliminated-badge">ELIMINATED</span>
       `;
     } else {
+      card.setAttribute("aria-label", `Vote out ${player.name}`);
       card.innerHTML = `
-        <div class="player-avatar-circle">
+        <div class="player-avatar-circle" aria-hidden="true">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </div>
         <div class="vote-card-name">${player.name}</div>
@@ -7514,18 +7723,37 @@ function renderVotingGrid() {
   });
 }
 
+// Modal helpers: remember what had focus, focus the safe action, restore on close
+let modalReturnFocus = null;
+
+function openModal(modalEl, initialFocusEl) {
+  modalReturnFocus = document.activeElement;
+  modalEl.classList.remove("hidden");
+  if (initialFocusEl) initialFocusEl.focus();
+}
+
+function hideModal(modalEl) {
+  modalEl.classList.add("hidden");
+  if (modalReturnFocus && document.contains(modalReturnFocus)) modalReturnFocus.focus();
+  modalReturnFocus = null;
+}
+
+function getOpenModal() {
+  return [dom.modalConfirmElim, dom.modalConfirmAbort].find(m => m && !m.classList.contains("hidden")) || null;
+}
+
 function promptElimination(playerId) {
   const player = gameState.players.find(p => p.id === playerId);
   if (!player || player.eliminated) return;
 
   gameState.pendingEliminationId = playerId;
   dom.modalElimTitle.textContent = `Eliminate ${player.name}?`;
-  dom.modalConfirmElim.classList.remove("hidden");
+  openModal(dom.modalConfirmElim, dom.btnModalCancel);
 }
 
 function closeModal() {
   gameState.pendingEliminationId = null;
-  dom.modalConfirmElim.classList.add("hidden");
+  hideModal(dom.modalConfirmElim);
 }
 
 function confirmElimination() {
@@ -7545,12 +7773,12 @@ function revealPlayerRole(player) {
 
   if (isSpy) {
     soundFx.playAlert();
+    vibrate([60, 40, 120]);
     dom.revealOutcomeCard.className = "outcome-card spy-eliminated";
     dom.revealHeroIcon.innerHTML = `
-      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
       </svg>
     `;
     dom.revealOutcomeTitle.textContent = `${player.name.toUpperCase()} WAS A SPY!`;
@@ -7562,7 +7790,7 @@ function revealPlayerRole(player) {
     soundFx.playClick();
     dom.revealOutcomeCard.className = "outcome-card civilian-eliminated";
     dom.revealHeroIcon.innerHTML = `
-      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
         <circle cx="12" cy="7" r="4"></circle>
       </svg>
@@ -7622,8 +7850,9 @@ function showGameOver(winner) {
   const remainingCivilians = gameState.players.filter(p => p.role === "Civilian" && !p.eliminated).length;
 
   if (winner === "civilians") {
+    dom.victoryConfetti.className = "victory-icon";
     dom.victoryConfetti.innerHTML = `
-      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="8" r="7"></circle>
         <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
       </svg>
@@ -7634,11 +7863,11 @@ function showGameOver(winner) {
     dom.victoryHeadline.className = "victory-headline civ-win";
     dom.victorySummary.textContent = "All undercover spies were unmasked before parity was reached!";
   } else {
+    dom.victoryConfetti.className = "victory-icon icon-spy";
     dom.victoryConfetti.innerHTML = `
-      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"></path>
+        <circle cx="12" cy="12" r="3"></circle>
       </svg>
     `;
     dom.victoryBadge.textContent = "MISSION COMPROMISED";
@@ -7668,20 +7897,16 @@ function showGameOver(winner) {
   dom.statRoundsPlayed.textContent = gameState.currentRound;
   dom.statCivsLeft.textContent = remainingCivilians;
 
-  // Roster Archive
+  // Roster Archive (spies listed first)
   dom.finalRosterList.innerHTML = "";
-  gameState.players.forEach(p => {
+  const roster = [...gameState.players].sort((a, b) => (b.role === "Spy") - (a.role === "Spy"));
+  roster.forEach(p => {
     const row = document.createElement("div");
     row.className = `roster-player-row ${p.role === "Spy" ? "was-spy" : "was-civ"}`;
     row.innerHTML = `
-      <div>
-        <strong>${p.name}</strong> 
-        <span style="font-size:0.75rem; color:var(--text-muted);">(${p.role})</span>
-      </div>
-      <div>
-        <span style="font-family:var(--font-mono); font-size:0.75rem;">${p.word}</span>
-        ${p.eliminated ? '<span style="color:#ef4444; margin-left:6px; font-weight:700;">[ELIMINATED]</span>' : '<span style="color:#10b981; margin-left:6px; font-weight:700;">[SURVIVED]</span>'}
-      </div>
+      <span class="roster-name">${p.name}<span class="roster-role">${p.role}</span></span>
+      <span class="roster-word">${p.word}</span>
+      ${p.eliminated ? '<span class="roster-status status-out">OUT</span>' : '<span class="roster-status status-alive">SURVIVED</span>'}
     `;
     dom.finalRosterList.appendChild(row);
   });
@@ -7709,21 +7934,66 @@ function newGame() {
   switchScreen("config");
 }
 
+// Abandon the game in progress and return to setup (settings are kept)
+function quitGame() {
+  clearInterval(gameState.timerInterval);
+  gameState.isTimerPaused = false;
+  gameState.pendingEliminationId = null;
+  dom.modalConfirmElim.classList.add("hidden");
+  dom.modalConfirmAbort.classList.add("hidden");
+  modalReturnFocus = null;
+  switchScreen("config");
+  showToast("Game ended. Setup kept.");
+}
+
+// 14.5. Theme & sound preferences
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const sun = dom.btnThemeToggle.querySelector(".sun-icon");
+  const moon = dom.btnThemeToggle.querySelector(".moon-icon");
+  if (sun) sun.classList.toggle("hidden", theme === "light");
+  if (moon) moon.classList.toggle("hidden", theme !== "light");
+  dom.btnThemeToggle.setAttribute("aria-label", theme === "light" ? "Switch to dark theme" : "Switch to light theme");
+
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor) themeColor.setAttribute("content", theme === "light" ? "#eef1f7" : "#07090f");
+}
+
+function applySound(enabled) {
+  soundFx.enabled = enabled;
+  if (!dom.btnSoundToggle) return;
+  dom.btnSoundToggle.setAttribute("aria-pressed", enabled ? "false" : "true");
+  dom.btnSoundToggle.setAttribute("aria-label", enabled ? "Mute sound" : "Unmute sound");
+  dom.btnSoundToggle.querySelector(".sound-on-icon").classList.toggle("hidden", !enabled);
+  dom.btnSoundToggle.querySelector(".sound-off-icon").classList.toggle("hidden", enabled);
+}
+
 // 15. Event Listeners Initialization
 function initEventListeners() {
   // Players stepper
   dom.btnDecPlayers.addEventListener("click", () => {
-    if (gameState.totalPlayers > 3) {
+    if (gameState.totalPlayers > MIN_PLAYERS) {
       gameState.totalPlayers--;
+      // Keep the spy count valid for the smaller group
+      const maxSpies = getMaxSpies(gameState.totalPlayers);
+      if (gameState.totalSpies > maxSpies) {
+        gameState.totalSpies = maxSpies;
+        bumpNumber(dom.displaySpies);
+        showToast(`Spies reduced to ${maxSpies} for ${gameState.totalPlayers} players`, "warn");
+      }
       updateStepperDisplays();
+      bumpNumber(dom.displayPlayers);
+      saveSettings();
       soundFx.playClick();
     }
   });
 
   dom.btnIncPlayers.addEventListener("click", () => {
-    if (gameState.totalPlayers < 20) {
+    if (gameState.totalPlayers < MAX_PLAYERS) {
       gameState.totalPlayers++;
       updateStepperDisplays();
+      bumpNumber(dom.displayPlayers);
+      saveSettings();
       soundFx.playClick();
     }
   });
@@ -7733,15 +8003,19 @@ function initEventListeners() {
     if (gameState.totalSpies > 1) {
       gameState.totalSpies--;
       updateStepperDisplays();
+      bumpNumber(dom.displaySpies);
+      saveSettings();
       soundFx.playClick();
     }
   });
 
   dom.btnIncSpies.addEventListener("click", () => {
-    const maxSpies = Math.max(1, Math.floor((gameState.totalPlayers - 1) / 2));
+    const maxSpies = getMaxSpies(gameState.totalPlayers);
     if (gameState.totalSpies < maxSpies) {
       gameState.totalSpies++;
       updateStepperDisplays();
+      bumpNumber(dom.displaySpies);
+      saveSettings();
       soundFx.playClick();
     }
   });
@@ -7782,28 +8056,24 @@ function initEventListeners() {
 
   // Timer chips
   dom.timerChips.forEach(chip => {
-    chip.addEventListener("click", (e) => {
+    chip.addEventListener("click", () => {
       soundFx.playClick();
-      dom.timerChips.forEach(c => c.classList.remove("active"));
-      e.target.classList.add("active");
-
-      const val = e.target.dataset.minutes;
-      if (val === "custom") {
-        gameState.selectedTimerMinutes = "custom";
-        if (dom.customTimerBox) dom.customTimerBox.classList.remove("hidden");
-      } else {
-        gameState.selectedTimerMinutes = parseInt(val, 10);
-        if (dom.customTimerBox) dom.customTimerBox.classList.add("hidden");
-      }
+      const val = chip.dataset.minutes;
+      setTimerSelection(val === "custom" ? "custom" : parseInt(val, 10));
+      if (val === "custom" && dom.customTimerInput) dom.customTimerInput.focus();
     });
   });
 
   if(dom.customTimerInput) {
-    dom.customTimerInput.addEventListener("input", (e) => {
-      const v = parseInt(e.target.value, 10);
-      if (!isNaN(v) && v > 0) {
-        // Updated in state, badge removed
-      }
+    dom.customTimerInput.addEventListener("input", () => {
+      updateMissionSummary();
+      saveSettings();
+    });
+    // Snap out-of-range values back into 1-60 when the field is left
+    dom.customTimerInput.addEventListener("change", () => {
+      dom.customTimerInput.value = getConfiguredTimerMinutes();
+      updateMissionSummary();
+      saveSettings();
     });
   }
 
@@ -7813,12 +8083,15 @@ function initEventListeners() {
     gameState.selectedCategories = Object.keys(localizedDatabases[gameState.language]);
     dom.configErrorMsg.classList.add("hidden");
     renderCategoryCards();
+    saveSettings();
   });
 
   dom.btnClearCats.addEventListener("click", () => {
     soundFx.playClick();
     gameState.selectedCategories = [];
     renderCategoryCards();
+    dom.configErrorMsg.classList.remove("hidden");
+    saveSettings();
   });
 
   // Start game from config
@@ -7845,17 +8118,34 @@ function initEventListeners() {
       soundFx.playClick();
       const currentTheme = document.documentElement.getAttribute("data-theme");
       const newTheme = currentTheme === "light" ? "dark" : "light";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      
-      const sun = dom.btnThemeToggle.querySelector(".sun-icon");
-      const moon = dom.btnThemeToggle.querySelector(".moon-icon");
-      if (newTheme === "light") {
-        if(sun) sun.classList.add("hidden");
-        if(moon) moon.classList.remove("hidden");
-      } else {
-        if(sun) sun.classList.remove("hidden");
-        if(moon) moon.classList.add("hidden");
-      }
+      applyTheme(newTheme);
+      storage.set("spygame.theme", newTheme);
+    });
+  }
+
+  // Sound Toggle
+  if (dom.btnSoundToggle) {
+    dom.btnSoundToggle.addEventListener("click", () => {
+      applySound(!soundFx.enabled);
+      storage.set("spygame.sound", soundFx.enabled ? "on" : "off");
+      soundFx.playClick();
+      showToast(soundFx.enabled ? "Sound on" : "Sound muted");
+    });
+  }
+
+  // Quit game (header) + confirmation
+  if (dom.btnAbortGame) {
+    dom.btnAbortGame.addEventListener("click", () => {
+      soundFx.playClick();
+      openModal(dom.modalConfirmAbort, dom.btnAbortCancel);
+    });
+    dom.btnAbortCancel.addEventListener("click", () => {
+      soundFx.playClick();
+      hideModal(dom.modalConfirmAbort);
+    });
+    dom.btnAbortConfirm.addEventListener("click", () => {
+      soundFx.playClick();
+      quitGame();
     });
   }
 
@@ -7876,6 +8166,41 @@ function initEventListeners() {
   });
   dom.btnModalConfirm.addEventListener("click", confirmElimination);
 
+  // Close a modal by tapping the dimmed backdrop
+  [dom.modalConfirmElim, dom.modalConfirmAbort].forEach(modal => {
+    if (!modal) return;
+    modal.addEventListener("click", (e) => {
+      if (e.target !== modal) return;
+      if (modal === dom.modalConfirmElim) closeModal();
+      else hideModal(modal);
+    });
+  });
+
+  // Keyboard: Escape closes modals, Tab stays inside an open modal
+  document.addEventListener("keydown", (e) => {
+    const openModalEl = getOpenModal();
+    if (!openModalEl) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (openModalEl === dom.modalConfirmElim) closeModal();
+      else hideModal(openModalEl);
+    } else if (e.key === "Tab") {
+      const focusables = openModalEl.querySelectorAll("button:not(:disabled)");
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      } else if (!openModalEl.contains(document.activeElement)) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
+
   // Reveal screen continue
   dom.btnContinueGame.addEventListener("click", handleContinueAfterReveal);
 
@@ -7884,8 +8209,20 @@ function initEventListeners() {
   dom.btnNewGame.addEventListener("click", newGame);
 }
 
+// Sync every setup control with the (possibly restored) game state
+function syncConfigControls() {
+  setActiveButton([dom.langBtnEn, dom.langBtnFil], btn => btn.dataset.lang === gameState.language);
+  setActiveButton(dom.diffButtons, btn => btn.dataset.diff === gameState.difficulty);
+  setSpyAwareness(gameState.spyAwareness);
+  setTimerSelection(gameState.selectedTimerMinutes);
+}
+
 // 16. Game Engine Bootstrapper
 document.addEventListener("DOMContentLoaded", () => {
+  loadSettings();
+  applyTheme(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark");
+  applySound(storage.get("spygame.sound") !== "off");
+  syncConfigControls();
   renderCategoryCards();
   updateStepperDisplays();
   initEventListeners();
